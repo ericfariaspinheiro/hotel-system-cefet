@@ -21,6 +21,7 @@ import { FeedbackSnackbar } from '../../componentes/FeedbackSnackbar';
 import { quartosMock } from '../../data/mockData';
 import type { Quarto, StatusQuarto } from '../../types/hotel';
 import { CrudList } from '../../componentes/CrudList';
+import { SearchInput } from '../../componentes/SearchInput';
 
 const emptyQuarto: Omit<Quarto, 'id'> = {
     numero: '',
@@ -162,12 +163,10 @@ export function QuartosPage() {
                 onButtonClick={handleOpenCreate}
             />
 
-            <TextField
-                fullWidth
+            <SearchInput
                 label="Buscar por número, tipo ou status"
                 value={search}
-                onChange={event => setSearch(event.target.value)}
-                sx={{ mb: 3 }}
+                onChange={setSearch}
             />
 
             <CrudList

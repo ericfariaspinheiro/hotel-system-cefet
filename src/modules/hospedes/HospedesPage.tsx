@@ -17,6 +17,7 @@ import { FeedbackSnackbar } from '../../componentes/FeedbackSnackbar';
 import { hospedesMock } from '../../data/mockData';
 import type { Hospede } from '../../types/hotel';
 import { CrudList } from '../../componentes/CrudList';
+import { SearchInput } from '../../componentes/SearchInput';
 
 const emptyHospede: Omit<Hospede, 'id'> = {
     nome: '',
@@ -154,12 +155,10 @@ export function HospedesPage() {
                 onButtonClick={handleOpenCreate}
             />
 
-            <TextField
-                fullWidth
+            <SearchInput
                 label="Buscar por nome ou CPF"
                 value={search}
-                onChange={event => setSearch(event.target.value)}
-                sx={{ mb: 3 }}
+                onChange={setSearch}
             />
 
             <CrudList

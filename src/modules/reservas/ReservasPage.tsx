@@ -21,6 +21,7 @@ import { FeedbackSnackbar } from '../../componentes/FeedbackSnackbar';
 import { hospedesMock, quartosMock, reservasMock } from '../../data/mockData';
 import type { Reserva, StatusReserva } from '../../types/hotel';
 import { CrudList } from '../../componentes/CrudList';
+import { SearchInput } from '../../componentes/SearchInput';
 
 const emptyReserva: Omit<Reserva, 'id'> = {
   hospedeId: 0,
@@ -174,12 +175,10 @@ export function ReservasPage() {
         onButtonClick={handleOpenCreate}
       />
 
-      <TextField
-        fullWidth
+      <SearchInput
         label="Buscar por hóspede, quarto ou status"
         value={search}
-        onChange={event => setSearch(event.target.value)}
-        sx={{ mb: 3 }}
+        onChange={setSearch}
       />
 
       <CrudList

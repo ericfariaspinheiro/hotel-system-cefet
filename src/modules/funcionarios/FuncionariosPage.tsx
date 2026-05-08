@@ -21,6 +21,7 @@ import { FeedbackSnackbar } from '../../componentes/FeedbackSnackbar';
 import { funcionariosMock } from '../../data/mockData';
 import type { Funcionario, TurnoFuncionario } from '../../types/hotel';
 import { CrudList } from '../../componentes/CrudList';
+import { SearchInput } from '../../componentes/SearchInput';
 
 const emptyFuncionario: Omit<Funcionario, 'id'> = {
   nome: '',
@@ -171,12 +172,10 @@ export function FuncionariosPage() {
         onButtonClick={handleOpenCreate}
       />
 
-      <TextField
-        fullWidth
+      <SearchInput
         label="Buscar por nome, CPF ou cargo"
         value={search}
-        onChange={event => setSearch(event.target.value)}
-        sx={{ mb: 3 }}
+        onChange={setSearch}
       />
 
       <CrudList

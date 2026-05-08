@@ -19,6 +19,7 @@ import { FeedbackSnackbar } from '../../componentes/FeedbackSnackbar';
 import { servicosMock } from '../../data/mockData';
 import type { Servico } from '../../types/hotel';
 import { CrudList } from '../../componentes/CrudList';
+import { SearchInput } from '../../componentes/SearchInput';
 
 const emptyServico: Omit<Servico, 'id'> = {
   nome: '',
@@ -157,12 +158,10 @@ export function ServicosPage() {
         onButtonClick={handleOpenCreate}
       />
 
-      <TextField
-        fullWidth
+      <SearchInput
         label="Buscar por nome ou categoria"
         value={search}
-        onChange={event => setSearch(event.target.value)}
-        sx={{ mb: 3 }}
+        onChange={setSearch}
       />
 
       <CrudList
