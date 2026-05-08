@@ -18,7 +18,7 @@ import { ConfirmDialog } from '../../componentes/ConfirmDialog';
 import { FeedbackSnackbar } from '../../componentes/FeedbackSnackbar';
 import { servicosMock } from '../../data/mockData';
 import type { Servico } from '../../types/hotel';
-import { CrudCard } from '../../componentes/CrudCard';
+import { CrudList } from '../../componentes/CrudList';
 
 const emptyServico: Omit<Servico, 'id'> = {
   nome: '',
@@ -141,6 +141,13 @@ export function ServicosPage() {
     setOpenSnackbar(true);
   }
 
+  const servicosList = filteredServicos.map(servico => ({
+    id: servico.id,
+    title: servico.nome,
+    subtitle: `Categoria: ${servico.categoria} | Preço: R$ ${servico.preco}`,
+    description: `Status: ${servico.disponivel ? 'Disponível' : 'Indisponível'}`,
+  }));
+
   return (
     <Box>
       <PageHeader
@@ -158,25 +165,25 @@ export function ServicosPage() {
         sx={{ mb: 3 }}
       />
 
-      <Stack spacing={2}>
-        {filteredServicos.map(servico => (
-          <CrudCard
-            key={servico.id}
-            title={servico.nome}
-            subtitle={`Categoria: ${servico.categoria} | Preço: R$ ${servico.preco}`}
-            description={`Status: ${servico.disponivel ? 'Disponível' : 'Indisponível'}`}
-            onDetails={() => handleOpenDetails(servico)}
-            onEdit={() => handleOpenEdit(servico)}
-            onDelete={() => handleOpenDeleteDialog(servico.id)}
-          />
-        ))}
-      </Stack>
+      <CrudList
+        items={servicosList}
+        emptyMessage="Nenhum serviço encontrado."
+        onDetails={id => {
+          const servico = servicos.find(item => item.id === id);
 
-      {filteredServicos.length === 0 && (
-        <Typography sx={{ mt: 3 }} color="text.secondary">
-          Nenhum serviço encontrado.
-        </Typography>
-      )}
+          if (servico) {
+            handleOpenDetails(servico);
+          }
+        }}
+        onEdit={id => {
+          const servico = servicos.find(item => item.id === id);
+
+          if (servico) {
+            handleOpenEdit(servico);
+          }
+        }}
+        onDelete={handleOpenDeleteDialog}
+      />
 
       <Dialog open={openForm} onClose={handleCloseForm} fullWidth maxWidth="sm">
         <DialogTitle>

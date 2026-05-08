@@ -20,7 +20,7 @@ import { ConfirmDialog } from '../../componentes/ConfirmDialog';
 import { FeedbackSnackbar } from '../../componentes/FeedbackSnackbar';
 import { funcionariosMock } from '../../data/mockData';
 import type { Funcionario, TurnoFuncionario } from '../../types/hotel';
-import { CrudCard } from '../../componentes/CrudCard';
+import { CrudList } from '../../componentes/CrudList';
 
 const emptyFuncionario: Omit<Funcionario, 'id'> = {
   nome: '',
@@ -155,6 +155,13 @@ export function FuncionariosPage() {
     setOpenSnackbar(true);
   }
 
+  const funcionariosList = filteredFuncionarios.map(funcionario => ({
+    id: funcionario.id,
+    title: funcionario.nome,
+    subtitle: `Cargo: ${funcionario.cargo} | Turno: ${funcionario.turno}`,
+    description: `${funcionario.email} | ${funcionario.telefone}`,
+  }));
+
   return (
     <Box>
       <PageHeader
@@ -172,25 +179,25 @@ export function FuncionariosPage() {
         sx={{ mb: 3 }}
       />
 
-      <Stack spacing={2}>
-        {filteredFuncionarios.map(funcionario => (
-          <CrudCard
-            key={funcionario.id}
-            title={funcionario.nome}
-            subtitle={`Cargo: ${funcionario.cargo} | Turno: ${funcionario.turno}`}
-            description={`${funcionario.email} | ${funcionario.telefone}`}
-            onDetails={() => handleOpenDetails(funcionario)}
-            onEdit={() => handleOpenEdit(funcionario)}
-            onDelete={() => handleOpenDeleteDialog(funcionario.id)}
-          />
-        ))}
-      </Stack>
+      <CrudList
+        items={funcionariosList}
+        emptyMessage="Nenhum funcionário encontrado."
+        onDetails={id => {
+          const funcionario = funcionarios.find(item => item.id === id);
 
-      {filteredFuncionarios.length === 0 && (
-        <Typography sx={{ mt: 3 }} color="text.secondary">
-          Nenhum funcionário encontrado.
-        </Typography>
-      )}
+          if (funcionario) {
+            handleOpenDetails(funcionario);
+          }
+        }}
+        onEdit={id => {
+          const funcionario = funcionarios.find(item => item.id === id);
+
+          if (funcionario) {
+            handleOpenEdit(funcionario);
+          }
+        }}
+        onDelete={handleOpenDeleteDialog}
+      />
 
       <Dialog open={openForm} onClose={handleCloseForm} fullWidth maxWidth="sm">
         <DialogTitle>

@@ -20,7 +20,7 @@ import { ConfirmDialog } from '../../componentes/ConfirmDialog';
 import { FeedbackSnackbar } from '../../componentes/FeedbackSnackbar';
 import { quartosMock } from '../../data/mockData';
 import type { Quarto, StatusQuarto } from '../../types/hotel';
-import { CrudCard } from '../../componentes/CrudCard';
+import { CrudList } from '../../componentes/CrudList';
 
 const emptyQuarto: Omit<Quarto, 'id'> = {
     numero: '',
@@ -146,6 +146,13 @@ export function QuartosPage() {
         setOpenSnackbar(true);
     }
 
+    const quartosList = filteredQuartos.map(quarto => ({
+        id: quarto.id,
+        title: `Quarto ${quarto.numero}`,
+        subtitle: `Tipo: ${quarto.tipo} | Capacidade: ${quarto.capacidade}`,
+        description: `Status: ${quarto.status} | Diária: R$ ${quarto.precoDiaria}`,
+    }));
+
     return (
         <Box>
             <PageHeader
@@ -163,25 +170,25 @@ export function QuartosPage() {
                 sx={{ mb: 3 }}
             />
 
-            <Stack spacing={2}>
-                {filteredQuartos.map(quarto => (
-                    <CrudCard
-                        key={quarto.id}
-                        title={`Quarto ${quarto.numero}`}
-                        subtitle={`Tipo: ${quarto.tipo} | Capacidade: ${quarto.capacidade}`}
-                        description={`Status: ${quarto.status} | Diária: R$ ${quarto.precoDiaria}`}
-                        onDetails={() => handleOpenDetails(quarto)}
-                        onEdit={() => handleOpenEdit(quarto)}
-                        onDelete={() => handleOpenDeleteDialog(quarto.id)}
-                    />
-                ))}
-            </Stack>
+            <CrudList
+                items={quartosList}
+                emptyMessage="Nenhum quarto encontrado."
+                onDetails={id => {
+                    const quarto = quartos.find(item => item.id === id);
 
-            {filteredQuartos.length === 0 && (
-                <Typography sx={{ mt: 3 }} color="text.secondary">
-                    Nenhum quarto encontrado.
-                </Typography>
-            )}
+                    if (quarto) {
+                        handleOpenDetails(quarto);
+                    }
+                }}
+                onEdit={id => {
+                    const quarto = quartos.find(item => item.id === id);
+
+                    if (quarto) {
+                        handleOpenEdit(quarto);
+                    }
+                }}
+                onDelete={handleOpenDeleteDialog}
+            />
 
             <Dialog open={openForm} onClose={handleCloseForm} fullWidth maxWidth="sm">
                 <DialogTitle>

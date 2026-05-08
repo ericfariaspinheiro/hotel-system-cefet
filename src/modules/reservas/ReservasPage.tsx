@@ -20,7 +20,7 @@ import { ConfirmDialog } from '../../componentes/ConfirmDialog';
 import { FeedbackSnackbar } from '../../componentes/FeedbackSnackbar';
 import { hospedesMock, quartosMock, reservasMock } from '../../data/mockData';
 import type { Reserva, StatusReserva } from '../../types/hotel';
-import { CrudCard } from '../../componentes/CrudCard';
+import { CrudList } from '../../componentes/CrudList';
 
 const emptyReserva: Omit<Reserva, 'id'> = {
   hospedeId: 0,
@@ -158,6 +158,13 @@ export function ReservasPage() {
     setOpenSnackbar(true);
   }
 
+  const reservasList = filteredReservas.map(reserva => ({
+    id: reserva.id,
+    title: getHospedeNome(reserva.hospedeId),
+    subtitle: `Quarto: ${getQuartoNumero(reserva.quartoId)} | Status: ${reserva.status}`,
+    description: `Entrada: ${reserva.dataEntrada} | Saída: ${reserva.dataSaida}`,
+  }));
+
   return (
     <Box>
       <PageHeader
@@ -175,25 +182,25 @@ export function ReservasPage() {
         sx={{ mb: 3 }}
       />
 
-      <Stack spacing={2}>
-        {filteredReservas.map(reserva => (
-          <CrudCard
-            key={reserva.id}
-            title={getHospedeNome(reserva.hospedeId)}
-            subtitle={`Quarto: ${getQuartoNumero(reserva.quartoId)} | Status: ${reserva.status}`}
-            description={`Entrada: ${reserva.dataEntrada} | Saída: ${reserva.dataSaida}`}
-            onDetails={() => handleOpenDetails(reserva)}
-            onEdit={() => handleOpenEdit(reserva)}
-            onDelete={() => handleOpenDeleteDialog(reserva.id)}
-          />
-        ))}
-      </Stack>
+      <CrudList
+        items={reservasList}
+        emptyMessage="Nenhuma reserva encontrada."
+        onDetails={id => {
+          const reserva = reservas.find(item => item.id === id);
 
-      {filteredReservas.length === 0 && (
-        <Typography sx={{ mt: 3 }} color="text.secondary">
-          Nenhuma reserva encontrada.
-        </Typography>
-      )}
+          if (reserva) {
+            handleOpenDetails(reserva);
+          }
+        }}
+        onEdit={id => {
+          const reserva = reservas.find(item => item.id === id);
+
+          if (reserva) {
+            handleOpenEdit(reserva);
+          }
+        }}
+        onDelete={handleOpenDeleteDialog}
+      />
 
       <Dialog open={openForm} onClose={handleCloseForm} fullWidth maxWidth="sm">
         <DialogTitle>

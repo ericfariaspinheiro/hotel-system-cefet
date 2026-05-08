@@ -16,7 +16,7 @@ import { ConfirmDialog } from '../../componentes/ConfirmDialog';
 import { FeedbackSnackbar } from '../../componentes/FeedbackSnackbar';
 import { hospedesMock } from '../../data/mockData';
 import type { Hospede } from '../../types/hotel';
-import { CrudCard } from '../../componentes/CrudCard';
+import { CrudList } from '../../componentes/CrudList';
 
 const emptyHospede: Omit<Hospede, 'id'> = {
     nome: '',
@@ -138,6 +138,13 @@ export function HospedesPage() {
         setOpenSnackbar(true);
     }
 
+    const hospedesList = filteredHospedes.map(hospede => ({
+        id: hospede.id,
+        title: hospede.nome,
+        subtitle: `CPF: ${hospede.cpf}`,
+        description: `${hospede.email} | ${hospede.telefone}`,
+    }));
+
     return (
         <Box>
             <PageHeader
@@ -155,30 +162,25 @@ export function HospedesPage() {
                 sx={{ mb: 3 }}
             />
 
-            <Stack spacing={2}>
-                {filteredHospedes.map(hospede => (
-                    <CrudCard
-                        key={hospede.id}
-                        title={hospede.nome}
-                        subtitle={`CPF: ${hospede.cpf}`}
-                        description={`${hospede.email} | ${hospede.telefone}`}
-                        onDetails={() => handleOpenDetails(hospede)}
-                        onEdit={() => handleOpenEdit(hospede)}
-                        onDelete={() => handleOpenDeleteDialog(hospede.id)}
-                    />
-                ))}
-            </Stack>
+            <CrudList
+                items={hospedesList}
+                emptyMessage="Nenhum hóspede encontrado."
+                onDetails={(id: number) => {
+                    const hospede = hospedes.find(item => item.id === id);
 
-            {filteredHospedes.length === 0 && (
-                <Typography
-                    sx={{
-                        mt: 3,
-                        color: "text.secondary"
-                    }}
-                >
-                    Nenhum hóspede encontrado.
-                </Typography>
-            )}
+                    if (hospede) {
+                        handleOpenDetails(hospede);
+                    }
+                }}
+                onEdit={(id: number) => {
+                    const hospede = hospedes.find(item => item.id === id);
+
+                    if (hospede) {
+                        handleOpenEdit(hospede);
+                    }
+                }}
+                onDelete={handleOpenDeleteDialog}
+            />
 
             <Dialog open={openForm} onClose={handleCloseForm} fullWidth maxWidth="sm">
                 <DialogTitle>
