@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { api } from '../../services/api';
 import {
     Box,
     Button,
@@ -18,7 +19,6 @@ import {
 import { PageHeader } from '../../componentes/PageHeader';
 import { ConfirmDialog } from '../../componentes/ConfirmDialog';
 import { FeedbackSnackbar } from '../../componentes/FeedbackSnackbar';
-import { quartosMock } from '../../data/mockData';
 import type { Quarto, StatusQuarto } from '../../types/hotel';
 import { CrudList } from '../../componentes/CrudList';
 import { SearchInput } from '../../componentes/SearchInput';
@@ -33,7 +33,7 @@ const emptyQuarto: Omit<Quarto, 'id'> = {
 };
 
 export function QuartosPage() {
-    const [quartos, setQuartos] = useState<Quarto[]>(quartosMock);
+    const [quartos, setQuartos] = useState<Quarto[]>([]);
     const [search, setSearch] = useState('');
     const [openForm, setOpenForm] = useState(false);
     const [openDetails, setOpenDetails] = useState(false);
@@ -76,28 +76,16 @@ export function QuartosPage() {
         setFormData(emptyQuarto);
     }
 
-    function handleSave() {
+    async function handleSave() {
         if (selectedQuarto) {
-            setQuartos(currentQuartos =>
-                currentQuartos.map(quarto =>
-                    quarto.id === selectedQuarto.id
-                        ? { ...quarto, ...formData }
-                        : quarto
-                )
-            );
-
+            await api.put(`/quartos/${selectedQuarto.id}`, formData);
             showMessage('Quarto atualizado com sucesso.');
         } else {
-            const newQuarto: Quarto = {
-                id: Date.now(),
-                ...formData,
-            };
-
-            setQuartos(currentQuartos => [...currentQuartos, newQuarto]);
-
+            await api.post('/quartos', formData);
             showMessage('Quarto cadastrado com sucesso.');
         }
 
+        await loadQuartos();
         handleCloseForm();
     }
 
@@ -111,14 +99,14 @@ export function QuartosPage() {
         setOpenDeleteDialog(false);
     }
 
-    function handleConfirmDelete() {
+    async function handleConfirmDelete() {
         if (!quartoToDelete) return;
 
-        setQuartos(currentQuartos =>
-            currentQuartos.filter(quarto => quarto.id !== quartoToDelete)
-        );
+        await api.delete(`/quartos/${quartoToDelete}`);
 
         showMessage('Quarto excluído com sucesso.');
+
+        await loadQuartos();
         handleCloseDeleteDialog();
     }
 
@@ -154,6 +142,14 @@ export function QuartosPage() {
         description: `Status: ${quarto.status} | Diária: R$ ${quarto.precoDiaria}`,
     }));
 
+    async function loadQuartos() {
+        const response = await api.get('/quartos');
+        setQuartos(response.data);
+    }
+
+    useEffect(() => {
+        loadQuartos();
+    }, []);
     return (
         <Box>
             <PageHeader

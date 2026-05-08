@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+
 import {
   Box,
   Button,
@@ -15,12 +16,14 @@ import {
   Typography,
 } from '@mui/material';
 
-import { PageHeader } from '../../componentes/PageHeader';
-import { ConfirmDialog } from '../../componentes/ConfirmDialog';
-import { FeedbackSnackbar } from '../../componentes/FeedbackSnackbar';
-import { funcionariosMock } from '../../data/mockData';
+
+
+import { api } from '../../services/api';
 import type { Funcionario, TurnoFuncionario } from '../../types/hotel';
+import { ConfirmDialog } from '../../componentes/ConfirmDialog';
 import { CrudList } from '../../componentes/CrudList';
+import { FeedbackSnackbar } from '../../componentes/FeedbackSnackbar';
+import { PageHeader } from '../../componentes/PageHeader';
 import { SearchInput } from '../../componentes/SearchInput';
 
 const emptyFuncionario: Omit<Funcionario, 'id'> = {
@@ -34,9 +37,7 @@ const emptyFuncionario: Omit<Funcionario, 'id'> = {
 };
 
 export function FuncionariosPage() {
-  const [funcionarios, setFuncionarios] =
-    useState<Funcionario[]>(funcionariosMock);
-
+  const [funcionarios, setFuncionarios] = useState<Funcionario[]>([]);
   const [search, setSearch] = useState('');
   const [openForm, setOpenForm] = useState(false);
   const [openDetails, setOpenDetails] = useState(false);
@@ -46,6 +47,22 @@ export function FuncionariosPage() {
   const [formData, setFormData] =
     useState<Omit<Funcionario, 'id'>>(emptyFuncionario);
 
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [funcionarioToDelete, setFuncionarioToDelete] = useState<number | null>(
+    null
+  );
+
+  async function loadFuncionarios() {
+    const response = await api.get('/funcionarios');
+    setFuncionarios(response.data);
+  }
+
+  useEffect(() => {
+    loadFuncionarios();
+  }, []);
+
   const filteredFuncionarios = funcionarios.filter(
     funcionario =>
       funcionario.nome.toLowerCase().includes(search.toLowerCase()) ||
@@ -53,10 +70,17 @@ export function FuncionariosPage() {
       funcionario.cpf.includes(search)
   );
 
-  const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-  const [funcionarioToDelete, setFuncionarioToDelete] = useState<number | null>(null);
+  const funcionariosList = filteredFuncionarios.map(funcionario => ({
+    id: funcionario.id,
+    title: funcionario.nome,
+    subtitle: `Cargo: ${funcionario.cargo} | Turno: ${funcionario.turno}`,
+    description: `${funcionario.email} | ${funcionario.telefone}`,
+  }));
+
+  function showMessage(message: string) {
+    setSnackbarMessage(message);
+    setOpenSnackbar(true);
+  }
 
   function handleOpenCreate() {
     setSelectedFuncionario(null);
@@ -84,27 +108,16 @@ export function FuncionariosPage() {
     setFormData(emptyFuncionario);
   }
 
-  function handleSave() {
+  async function handleSave() {
     if (selectedFuncionario) {
-      setFuncionarios(currentFuncionarios =>
-        currentFuncionarios.map(funcionario =>
-          funcionario.id === selectedFuncionario.id
-            ? { ...funcionario, ...formData }
-            : funcionario
-        )
-      );
+      await api.put(`/funcionarios/${selectedFuncionario.id}`, formData);
+      showMessage('Funcionário atualizado com sucesso.');
     } else {
-      const newFuncionario: Funcionario = {
-        id: Date.now(),
-        ...formData,
-      };
-
-      setFuncionarios(currentFuncionarios => [
-        ...currentFuncionarios,
-        newFuncionario,
-      ]);
+      await api.post('/funcionarios', formData);
+      showMessage('Funcionário cadastrado com sucesso.');
     }
 
+    await loadFuncionarios();
     handleCloseForm();
   }
 
@@ -118,16 +131,14 @@ export function FuncionariosPage() {
     setOpenDeleteDialog(false);
   }
 
-  function handleConfirmDelete() {
+  async function handleConfirmDelete() {
     if (!funcionarioToDelete) return;
 
-    setFuncionarios(currentFuncionarios =>
-      currentFuncionarios.filter(
-        funcionario => funcionario.id !== funcionarioToDelete
-      )
-    );
+    await api.delete(`/funcionarios/${funcionarioToDelete}`);
 
     showMessage('Funcionário excluído com sucesso.');
+
+    await loadFuncionarios();
     handleCloseDeleteDialog();
   }
 
@@ -151,18 +162,6 @@ export function FuncionariosPage() {
     }));
   }
 
-  function showMessage(message: string) {
-    setSnackbarMessage(message);
-    setOpenSnackbar(true);
-  }
-
-  const funcionariosList = filteredFuncionarios.map(funcionario => ({
-    id: funcionario.id,
-    title: funcionario.nome,
-    subtitle: `Cargo: ${funcionario.cargo} | Turno: ${funcionario.turno}`,
-    description: `${funcionario.email} | ${funcionario.telefone}`,
-  }));
-
   return (
     <Box>
       <PageHeader
@@ -181,14 +180,14 @@ export function FuncionariosPage() {
       <CrudList
         items={funcionariosList}
         emptyMessage="Nenhum funcionário encontrado."
-        onDetails={id => {
+        onDetails={(id: number) => {
           const funcionario = funcionarios.find(item => item.id === id);
 
           if (funcionario) {
             handleOpenDetails(funcionario);
           }
         }}
-        onEdit={id => {
+        onEdit={(id: number) => {
           const funcionario = funcionarios.find(item => item.id === id);
 
           if (funcionario) {
@@ -252,14 +251,12 @@ export function FuncionariosPage() {
 
             <FormControl fullWidth>
               <InputLabel>Turno</InputLabel>
+
               <Select
                 label="Turno"
                 value={formData.turno}
                 onChange={event =>
-                  handleChange(
-                    'turno',
-                    event.target.value as TurnoFuncionario
-                  )
+                  handleChange('turno', event.target.value as TurnoFuncionario)
                 }
               >
                 <MenuItem value="Manhã">Manhã</MenuItem>

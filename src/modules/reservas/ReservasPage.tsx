@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+
 import {
   Box,
   Button,
@@ -15,12 +16,13 @@ import {
   Typography,
 } from '@mui/material';
 
-import { PageHeader } from '../../componentes/PageHeader';
+
+import { api } from '../../services/api';
+import type { Hospede, Quarto, Reserva, StatusReserva } from '../../types/hotel';
 import { ConfirmDialog } from '../../componentes/ConfirmDialog';
-import { FeedbackSnackbar } from '../../componentes/FeedbackSnackbar';
-import { hospedesMock, quartosMock, reservasMock } from '../../data/mockData';
-import type { Reserva, StatusReserva } from '../../types/hotel';
 import { CrudList } from '../../componentes/CrudList';
+import { FeedbackSnackbar } from '../../componentes/FeedbackSnackbar';
+import { PageHeader } from '../../componentes/PageHeader';
 import { SearchInput } from '../../componentes/SearchInput';
 
 const emptyReserva: Omit<Reserva, 'id'> = {
@@ -33,23 +35,50 @@ const emptyReserva: Omit<Reserva, 'id'> = {
 };
 
 export function ReservasPage() {
-  const [reservas, setReservas] = useState<Reserva[]>(reservasMock);
+  const [reservas, setReservas] = useState<Reserva[]>([]);
+  const [hospedes, setHospedes] = useState<Hospede[]>([]);
+  const [quartos, setQuartos] = useState<Quarto[]>([]);
+
   const [search, setSearch] = useState('');
   const [openForm, setOpenForm] = useState(false);
   const [openDetails, setOpenDetails] = useState(false);
   const [selectedReserva, setSelectedReserva] = useState<Reserva | null>(null);
   const [formData, setFormData] = useState<Omit<Reserva, 'id'>>(emptyReserva);
+
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [reservaToDelete, setReservaToDelete] = useState<number | null>(null);
 
+  async function loadReservas() {
+    const response = await api.get('/reservas');
+    setReservas(response.data);
+  }
+
+  async function loadHospedes() {
+    const response = await api.get('/hospedes');
+    setHospedes(response.data);
+  }
+
+  async function loadQuartos() {
+    const response = await api.get('/quartos');
+    setQuartos(response.data);
+  }
+
+  async function loadPageData() {
+    await Promise.all([loadReservas(), loadHospedes(), loadQuartos()]);
+  }
+
+  useEffect(() => {
+    loadPageData();
+  }, []);
+
   function getHospedeNome(id: number) {
-    return hospedesMock.find(hospede => hospede.id === id)?.nome || 'Não informado';
+    return hospedes.find(hospede => hospede.id === id)?.nome || 'Não informado';
   }
 
   function getQuartoNumero(id: number) {
-    return quartosMock.find(quarto => quarto.id === id)?.numero || 'Não informado';
+    return quartos.find(quarto => quarto.id === id)?.numero || 'Não informado';
   }
 
   const filteredReservas = reservas.filter(reserva => {
@@ -62,6 +91,18 @@ export function ReservasPage() {
       reserva.status.toLowerCase().includes(search.toLowerCase())
     );
   });
+
+  const reservasList = filteredReservas.map(reserva => ({
+    id: reserva.id,
+    title: getHospedeNome(reserva.hospedeId),
+    subtitle: `Quarto: ${getQuartoNumero(reserva.quartoId)} | Status: ${reserva.status}`,
+    description: `Entrada: ${reserva.dataEntrada} | Saída: ${reserva.dataSaida}`,
+  }));
+
+  function showMessage(message: string) {
+    setSnackbarMessage(message);
+    setOpenSnackbar(true);
+  }
 
   function handleOpenCreate() {
     setSelectedReserva(null);
@@ -88,28 +129,16 @@ export function ReservasPage() {
     setFormData(emptyReserva);
   }
 
-  function handleSave() {
+  async function handleSave() {
     if (selectedReserva) {
-      setReservas(currentReservas =>
-        currentReservas.map(reserva =>
-          reserva.id === selectedReserva.id
-            ? { ...reserva, ...formData }
-            : reserva
-        )
-      );
-
+      await api.put(`/reservas/${selectedReserva.id}`, formData);
       showMessage('Reserva atualizada com sucesso.');
     } else {
-      const newReserva: Reserva = {
-        id: Date.now(),
-        ...formData,
-      };
-
-      setReservas(currentReservas => [...currentReservas, newReserva]);
-
+      await api.post('/reservas', formData);
       showMessage('Reserva cadastrada com sucesso.');
     }
 
+    await loadReservas();
     handleCloseForm();
   }
 
@@ -123,14 +152,14 @@ export function ReservasPage() {
     setOpenDeleteDialog(false);
   }
 
-  function handleConfirmDelete() {
+  async function handleConfirmDelete() {
     if (!reservaToDelete) return;
 
-    setReservas(currentReservas =>
-      currentReservas.filter(reserva => reserva.id !== reservaToDelete)
-    );
+    await api.delete(`/reservas/${reservaToDelete}`);
 
     showMessage('Reserva excluída com sucesso.');
+
+    await loadReservas();
     handleCloseDeleteDialog();
   }
 
@@ -153,18 +182,6 @@ export function ReservasPage() {
       [field]: value,
     }));
   }
-
-  function showMessage(message: string) {
-    setSnackbarMessage(message);
-    setOpenSnackbar(true);
-  }
-
-  const reservasList = filteredReservas.map(reserva => ({
-    id: reserva.id,
-    title: getHospedeNome(reserva.hospedeId),
-    subtitle: `Quarto: ${getQuartoNumero(reserva.quartoId)} | Status: ${reserva.status}`,
-    description: `Entrada: ${reserva.dataEntrada} | Saída: ${reserva.dataSaida}`,
-  }));
 
   return (
     <Box>
@@ -210,6 +227,7 @@ export function ReservasPage() {
           <Stack spacing={2} sx={{ mt: 1 }}>
             <FormControl fullWidth>
               <InputLabel>Hóspede</InputLabel>
+
               <Select
                 label="Hóspede"
                 value={formData.hospedeId}
@@ -218,7 +236,8 @@ export function ReservasPage() {
                 }
               >
                 <MenuItem value={0}>Selecione um hóspede</MenuItem>
-                {hospedesMock.map(hospede => (
+
+                {hospedes.map(hospede => (
                   <MenuItem key={hospede.id} value={hospede.id}>
                     {hospede.nome}
                   </MenuItem>
@@ -228,6 +247,7 @@ export function ReservasPage() {
 
             <FormControl fullWidth>
               <InputLabel>Quarto</InputLabel>
+
               <Select
                 label="Quarto"
                 value={formData.quartoId}
@@ -236,7 +256,8 @@ export function ReservasPage() {
                 }
               >
                 <MenuItem value={0}>Selecione um quarto</MenuItem>
-                {quartosMock.map(quarto => (
+
+                {quartos.map(quarto => (
                   <MenuItem key={quarto.id} value={quarto.id}>
                     Quarto {quarto.numero} - {quarto.tipo}
                   </MenuItem>
@@ -268,6 +289,7 @@ export function ReservasPage() {
 
             <FormControl fullWidth>
               <InputLabel>Status</InputLabel>
+
               <Select
                 label="Status"
                 value={formData.status}

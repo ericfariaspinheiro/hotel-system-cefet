@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+
 import {
     Box,
     Button,
@@ -11,13 +12,15 @@ import {
     Typography,
 } from '@mui/material';
 
+
+
+import { api } from '../../services/api';
+import type { Hospede } from '../../types/hotel';
 import { PageHeader } from '../../componentes/PageHeader';
+import { SearchInput } from '../../componentes/SearchInput';
+import { CrudList } from '../../componentes/CrudList';
 import { ConfirmDialog } from '../../componentes/ConfirmDialog';
 import { FeedbackSnackbar } from '../../componentes/FeedbackSnackbar';
-import { hospedesMock } from '../../data/mockData';
-import type { Hospede } from '../../types/hotel';
-import { CrudList } from '../../componentes/CrudList';
-import { SearchInput } from '../../componentes/SearchInput';
 
 const emptyHospede: Omit<Hospede, 'id'> = {
     nome: '',
@@ -29,22 +32,44 @@ const emptyHospede: Omit<Hospede, 'id'> = {
 };
 
 export function HospedesPage() {
-    const [hospedes, setHospedes] = useState<Hospede[]>(hospedesMock);
+    const [hospedes, setHospedes] = useState<Hospede[]>([]);
     const [search, setSearch] = useState('');
     const [openForm, setOpenForm] = useState(false);
     const [openDetails, setOpenDetails] = useState(false);
     const [selectedHospede, setSelectedHospede] = useState<Hospede | null>(null);
     const [formData, setFormData] = useState(emptyHospede);
+
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
     const [hospedeToDelete, setHospedeToDelete] = useState<number | null>(null);
+
+    async function loadHospedes() {
+        const response = await api.get('/hospedes');
+        setHospedes(response.data);
+    }
+
+    useEffect(() => {
+        loadHospedes();
+    }, []);
 
     const filteredHospedes = hospedes.filter(
         hospede =>
             hospede.nome.toLowerCase().includes(search.toLowerCase()) ||
             hospede.cpf.includes(search)
     );
+
+    const hospedesList = filteredHospedes.map(hospede => ({
+        id: hospede.id,
+        title: hospede.nome,
+        subtitle: `CPF: ${hospede.cpf}`,
+        description: `${hospede.email} | ${hospede.telefone}`,
+    }));
+
+    function showMessage(message: string) {
+        setSnackbarMessage(message);
+        setOpenSnackbar(true);
+    }
 
     function handleOpenCreate() {
         setSelectedHospede(null);
@@ -71,28 +96,16 @@ export function HospedesPage() {
         setFormData(emptyHospede);
     }
 
-    function handleSave() {
+    async function handleSave() {
         if (selectedHospede) {
-            setHospedes(currentHospedes =>
-                currentHospedes.map(hospede =>
-                    hospede.id === selectedHospede.id
-                        ? { ...hospede, ...formData }
-                        : hospede
-                )
-            );
-
+            await api.put(`/hospedes/${selectedHospede.id}`, formData);
             showMessage('Hóspede atualizado com sucesso.');
         } else {
-            const newHospede: Hospede = {
-                id: Date.now(),
-                ...formData,
-            };
-
-            setHospedes(currentHospedes => [...currentHospedes, newHospede]);
-
+            await api.post('/hospedes', formData);
             showMessage('Hóspede cadastrado com sucesso.');
         }
 
+        await loadHospedes();
         handleCloseForm();
     }
 
@@ -106,14 +119,14 @@ export function HospedesPage() {
         setOpenDeleteDialog(false);
     }
 
-    function handleConfirmDelete() {
+    async function handleConfirmDelete() {
         if (!hospedeToDelete) return;
 
-        setHospedes(currentHospedes =>
-            currentHospedes.filter(hospede => hospede.id !== hospedeToDelete)
-        );
+        await api.delete(`/hospedes/${hospedeToDelete}`);
 
         showMessage('Hóspede excluído com sucesso.');
+
+        await loadHospedes();
         handleCloseDeleteDialog();
     }
 
@@ -134,18 +147,6 @@ export function HospedesPage() {
         }));
     }
 
-    function showMessage(message: string) {
-        setSnackbarMessage(message);
-        setOpenSnackbar(true);
-    }
-
-    const hospedesList = filteredHospedes.map(hospede => ({
-        id: hospede.id,
-        title: hospede.nome,
-        subtitle: `CPF: ${hospede.cpf}`,
-        description: `${hospede.email} | ${hospede.telefone}`,
-    }));
-
     return (
         <Box>
             <PageHeader
@@ -164,14 +165,14 @@ export function HospedesPage() {
             <CrudList
                 items={hospedesList}
                 emptyMessage="Nenhum hóspede encontrado."
-                onDetails={(id: number) => {
+                onDetails={id => {
                     const hospede = hospedes.find(item => item.id === id);
 
                     if (hospede) {
                         handleOpenDetails(hospede);
                     }
                 }}
-                onEdit={(id: number) => {
+                onEdit={id => {
                     const hospede = hospedes.find(item => item.id === id);
 
                     if (hospede) {
@@ -228,6 +229,7 @@ export function HospedesPage() {
                                 inputLabel: { shrink: true }
                             }}
                         />
+
 
                         <TextField
                             label="Endereço"

@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+
 import {
   Box,
   Button,
@@ -13,12 +14,14 @@ import {
   Typography,
 } from '@mui/material';
 
-import { PageHeader } from '../../componentes/PageHeader';
-import { ConfirmDialog } from '../../componentes/ConfirmDialog';
-import { FeedbackSnackbar } from '../../componentes/FeedbackSnackbar';
-import { servicosMock } from '../../data/mockData';
+
+
+import { api } from '../../services/api';
 import type { Servico } from '../../types/hotel';
+import { ConfirmDialog } from '../../componentes/ConfirmDialog';
 import { CrudList } from '../../componentes/CrudList';
+import { FeedbackSnackbar } from '../../componentes/FeedbackSnackbar';
+import { PageHeader } from '../../componentes/PageHeader';
 import { SearchInput } from '../../componentes/SearchInput';
 
 const emptyServico: Omit<Servico, 'id'> = {
@@ -30,22 +33,44 @@ const emptyServico: Omit<Servico, 'id'> = {
 };
 
 export function ServicosPage() {
-  const [servicos, setServicos] = useState<Servico[]>(servicosMock);
+  const [servicos, setServicos] = useState<Servico[]>([]);
   const [search, setSearch] = useState('');
   const [openForm, setOpenForm] = useState(false);
   const [openDetails, setOpenDetails] = useState(false);
   const [selectedServico, setSelectedServico] = useState<Servico | null>(null);
   const [formData, setFormData] = useState<Omit<Servico, 'id'>>(emptyServico);
+
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [servicoToDelete, setServicoToDelete] = useState<number | null>(null);
+
+  async function loadServicos() {
+    const response = await api.get('/servicos');
+    setServicos(response.data);
+  }
+
+  useEffect(() => {
+    loadServicos();
+  }, []);
 
   const filteredServicos = servicos.filter(
     servico =>
       servico.nome.toLowerCase().includes(search.toLowerCase()) ||
       servico.categoria.toLowerCase().includes(search.toLowerCase())
   );
+
+  const servicosList = filteredServicos.map(servico => ({
+    id: servico.id,
+    title: servico.nome,
+    subtitle: `Categoria: ${servico.categoria} | Preço: R$ ${servico.preco}`,
+    description: `Status: ${servico.disponivel ? 'Disponível' : 'Indisponível'}`,
+  }));
+
+  function showMessage(message: string) {
+    setSnackbarMessage(message);
+    setOpenSnackbar(true);
+  }
 
   function handleOpenCreate() {
     setSelectedServico(null);
@@ -71,28 +96,16 @@ export function ServicosPage() {
     setFormData(emptyServico);
   }
 
-  function handleSave() {
+  async function handleSave() {
     if (selectedServico) {
-      setServicos(currentServicos =>
-        currentServicos.map(servico =>
-          servico.id === selectedServico.id
-            ? { ...servico, ...formData }
-            : servico
-        )
-      );
-
+      await api.put(`/servicos/${selectedServico.id}`, formData);
       showMessage('Serviço atualizado com sucesso.');
     } else {
-      const newServico: Servico = {
-        id: Date.now(),
-        ...formData,
-      };
-
-      setServicos(currentServicos => [...currentServicos, newServico]);
-
+      await api.post('/servicos', formData);
       showMessage('Serviço cadastrado com sucesso.');
     }
 
+    await loadServicos();
     handleCloseForm();
   }
 
@@ -106,14 +119,14 @@ export function ServicosPage() {
     setOpenDeleteDialog(false);
   }
 
-  function handleConfirmDelete() {
+  async function handleConfirmDelete() {
     if (!servicoToDelete) return;
 
-    setServicos(currentServicos =>
-      currentServicos.filter(servico => servico.id !== servicoToDelete)
-    );
+    await api.delete(`/servicos/${servicoToDelete}`);
 
     showMessage('Serviço excluído com sucesso.');
+
+    await loadServicos();
     handleCloseDeleteDialog();
   }
 
@@ -137,18 +150,6 @@ export function ServicosPage() {
     }));
   }
 
-  function showMessage(message: string) {
-    setSnackbarMessage(message);
-    setOpenSnackbar(true);
-  }
-
-  const servicosList = filteredServicos.map(servico => ({
-    id: servico.id,
-    title: servico.nome,
-    subtitle: `Categoria: ${servico.categoria} | Preço: R$ ${servico.preco}`,
-    description: `Status: ${servico.disponivel ? 'Disponível' : 'Indisponível'}`,
-  }));
-
   return (
     <Box>
       <PageHeader
@@ -167,14 +168,14 @@ export function ServicosPage() {
       <CrudList
         items={servicosList}
         emptyMessage="Nenhum serviço encontrado."
-        onDetails={id => {
+        onDetails={(id: number) => {
           const servico = servicos.find(item => item.id === id);
 
           if (servico) {
             handleOpenDetails(servico);
           }
         }}
-        onEdit={id => {
+        onEdit={(id: number) => {
           const servico = servicos.find(item => item.id === id);
 
           if (servico) {
