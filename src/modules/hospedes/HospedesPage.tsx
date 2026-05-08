@@ -198,7 +198,7 @@ export function HospedesPage() {
                 mt: 3,
                 color: "text.secondary"
             }}
-            >
+        >
           Nenhum hóspede encontrado.
         </Typography>
       )}
@@ -246,7 +246,9 @@ export function HospedesPage() {
                 handleChange('dataNascimento', event.target.value)
               }
               fullWidth
-              InputLabelProps={{ shrink: true }}
+              slotProps={{
+                    inputLabel: { shrink: true }
+                }}
             />
 
             <TextField
