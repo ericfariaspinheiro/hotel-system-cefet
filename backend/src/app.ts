@@ -3,6 +3,7 @@ import cors from 'cors';
 
 import { hospedesRoutes } from './routes/hospedesRoutes';
 import { quartosRoutes } from './routes/quartosRoutes';
+import { funcionariosRoutes } from './routes/funcionariosRoutes';
 
 export const app = express();
 
@@ -17,3 +18,4 @@ app.get('/', (req, res) => {
 
 app.use('/hospedes', hospedesRoutes);
 app.use('/quartos', quartosRoutes);
+app.use('/funcionarios', funcionariosRoutes);
