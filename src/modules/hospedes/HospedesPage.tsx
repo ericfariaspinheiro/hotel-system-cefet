@@ -19,7 +19,9 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-
+import { PageHeader } from '../../componentes/PageHeader';
+import { ConfirmDialog } from '../../componentes/ConfirmDialog';
+import { FeedbackSnackbar } from '../../componentes/FeedbackSnackbar';
 import { hospedesMock } from '../../data/mockData';
 import type { Hospede } from '../../types/hotel';
 
@@ -145,25 +147,12 @@ export function HospedesPage() {
 
     return (
         <Box>
-            <Stack
-                direction="row"
-                sx={{
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                mb: 3,
-                }}
-            >
-                <Box>
-                <Typography variant="h4">Hóspedes</Typography>
-                <Typography variant="body2" color="text.secondary">
-                    Gerencie os hóspedes cadastrados no hotel.
-                </Typography>
-                </Box>
-
-                <Button variant="contained" onClick={handleOpenCreate}>
-                Novo hóspede
-                </Button>
-            </Stack>
+            <PageHeader
+                title="Hóspedes"
+                description="Gerencie os hóspedes cadastrados no hotel."
+                buttonText="Novo hóspede"
+                onButtonClick={handleOpenCreate}
+            />
 
             <TextField
                 fullWidth
@@ -336,46 +325,19 @@ export function HospedesPage() {
                 </DialogActions>
             </Dialog>
 
-            <Dialog
+            <ConfirmDialog
                 open={openDeleteDialog}
+                title="Confirmar exclusão"
+                message="Tem certeza que deseja excluir este hóspede?"
                 onClose={handleCloseDeleteDialog}
-                fullWidth
-                maxWidth="xs"
-            >
-                <DialogTitle>Confirmar exclusão</DialogTitle>
+                onConfirm={handleConfirmDelete}
+            />
 
-                <DialogContent>
-                    <Typography>
-                    Tem certeza que deseja excluir este hóspede?
-                    </Typography>
-                </DialogContent>
-
-                <DialogActions>
-                    <Button onClick={handleCloseDeleteDialog}>Cancelar</Button>
-                    <Button
-                    variant="contained"
-                    color="error"
-                    onClick={handleConfirmDelete}
-                    >
-                    Excluir
-                    </Button>
-                </DialogActions>
-            </Dialog>
-
-            <Snackbar
-            open={openSnackbar}
-            autoHideDuration={3000}
-            onClose={() => setOpenSnackbar(false)}
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-            >
-                <Alert
-                    severity="success"
-                    variant="filled"
-                    onClose={() => setOpenSnackbar(false)}
-                >
-                    {snackbarMessage}
-                </Alert>
-            </Snackbar>
+            <FeedbackSnackbar
+                open={openSnackbar}
+                message={snackbarMessage}
+                onClose={() => setOpenSnackbar(false)}
+            />
         </Box>
     );
 }
