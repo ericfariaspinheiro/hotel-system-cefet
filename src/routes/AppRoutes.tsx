@@ -6,7 +6,7 @@ import { HospedesPage } from '../modules/hospedes/HospedesPage';
 import { QuartosPage } from '../modules/quartos/QuartosPage';
 import { Reservas } from '../pages/Reservas';
 import { FuncionariosPage } from '../modules/funcionarios/FuncionariosPage';
-import { Servicos } from '../pages/Servicos';
+import { ServicosPage } from '../modules/servicos/ServicosPage';
 
 export function AppRoutes() {
   return (
@@ -18,7 +18,7 @@ export function AppRoutes() {
           <Route path="/quartos" element={<QuartosPage />} />
           <Route path="/reservas" element={<Reservas />} />
           <Route path="/funcionarios" element={<FuncionariosPage />} />
-          <Route path="/servicos" element={<Servicos />} />
+          <Route path="/servicos" element={<ServicosPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
