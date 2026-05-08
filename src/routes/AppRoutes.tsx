@@ -5,7 +5,7 @@ import { Dashboard } from '../pages/Dashboard';
 import { HospedesPage } from '../modules/hospedes/HospedesPage';
 import { QuartosPage } from '../modules/quartos/QuartosPage';
 import { Reservas } from '../pages/Reservas';
-import { Funcionarios } from '../pages/Funcionarios';
+import { FuncionariosPage } from '../modules/funcionarios/FuncionariosPage';
 import { Servicos } from '../pages/Servicos';
 
 export function AppRoutes() {
@@ -17,7 +17,7 @@ export function AppRoutes() {
           <Route path="/hospedes" element={<HospedesPage />} />
           <Route path="/quartos" element={<QuartosPage />} />
           <Route path="/reservas" element={<Reservas />} />
-          <Route path="/funcionarios" element={<Funcionarios />} />
+          <Route path="/funcionarios" element={<FuncionariosPage />} />
           <Route path="/servicos" element={<Servicos />} />
         </Route>
       </Routes>
