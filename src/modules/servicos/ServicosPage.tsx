@@ -19,7 +19,9 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-
+import { PageHeader } from '../../components/PageHeader';
+import { ConfirmDialog } from '../../components/ConfirmDialog';
+import { FeedbackSnackbar } from '../../components/FeedbackSnackbar';
 import { servicosMock } from '../../data/mockData';
 import type { Servico } from '../../types/hotel';
 
@@ -38,6 +40,10 @@ export function ServicosPage() {
   const [openDetails, setOpenDetails] = useState(false);
   const [selectedServico, setSelectedServico] = useState<Servico | null>(null);
   const [formData, setFormData] = useState<Omit<Servico, 'id'>>(emptyServico);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [servicoToDelete, setServicoToDelete] = useState<number | null>(null);
 
   const filteredServicos = servicos.filter(
     servico =>
@@ -78,6 +84,8 @@ export function ServicosPage() {
             : servico
         )
       );
+
+      showMessage('Serviço atualizado com sucesso.');
     } else {
       const newServico: Servico = {
         id: Date.now(),
@@ -85,21 +93,32 @@ export function ServicosPage() {
       };
 
       setServicos(currentServicos => [...currentServicos, newServico]);
+
+      showMessage('Serviço cadastrado com sucesso.');
     }
 
     handleCloseForm();
   }
 
-  function handleDelete(id: number) {
-    const confirmDelete = window.confirm(
-      'Tem certeza que deseja excluir este serviço?'
-    );
+  function handleOpenDeleteDialog(id: number) {
+    setServicoToDelete(id);
+    setOpenDeleteDialog(true);
+  }
 
-    if (!confirmDelete) return;
+  function handleCloseDeleteDialog() {
+    setServicoToDelete(null);
+    setOpenDeleteDialog(false);
+  }
+
+  function handleConfirmDelete() {
+    if (!servicoToDelete) return;
 
     setServicos(currentServicos =>
-      currentServicos.filter(servico => servico.id !== id)
+      currentServicos.filter(servico => servico.id !== servicoToDelete)
     );
+
+    showMessage('Serviço excluído com sucesso.');
+    handleCloseDeleteDialog();
   }
 
   function handleOpenDetails(servico: Servico) {
@@ -122,27 +141,19 @@ export function ServicosPage() {
     }));
   }
 
+  function showMessage(message: string) {
+    setSnackbarMessage(message);
+    setOpenSnackbar(true);
+  }
+
   return (
     <Box>
-      <Stack
-        direction="row"
-        sx={{
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          mb: 3,
-        }}
-      >
-        <Box>
-          <Typography variant="h4">Serviços</Typography>
-          <Typography variant="body2" color="text.secondary">
-            Gerencie os serviços oferecidos pelo hotel.
-          </Typography>
-        </Box>
-
-        <Button variant="contained" onClick={handleOpenCreate}>
-          Novo serviço
-        </Button>
-      </Stack>
+      <PageHeader
+        title="Serviços"
+        description="Gerencie os serviços oferecidos pelo hotel."
+        buttonText="Novo serviço"
+        onButtonClick={handleOpenCreate}
+      />
 
       <TextField
         fullWidth
@@ -186,7 +197,7 @@ export function ServicosPage() {
 
                   <IconButton
                     color="error"
-                    onClick={() => handleDelete(servico.id)}
+                    onClick={() => handleOpenDeleteDialog(servico.id)}
                   >
                     <DeleteIcon />
                   </IconButton>
@@ -304,6 +315,20 @@ export function ServicosPage() {
           <Button onClick={handleCloseDetails}>Fechar</Button>
         </DialogActions>
       </Dialog>
+
+      <ConfirmDialog
+        open={openDeleteDialog}
+        title="Confirmar exclusão"
+        message="Tem certeza que deseja excluir este serviço?"
+        onClose={handleCloseDeleteDialog}
+        onConfirm={handleConfirmDelete}
+      />
+
+      <FeedbackSnackbar
+        open={openSnackbar}
+        message={snackbarMessage}
+        onClose={() => setOpenSnackbar(false)}
+      />
     </Box>
   );
 }
