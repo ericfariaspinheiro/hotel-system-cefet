@@ -21,7 +21,9 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-
+import { PageHeader } from '../../components/PageHeader';
+import { ConfirmDialog } from '../../components/ConfirmDialog';
+import { FeedbackSnackbar } from '../../components/FeedbackSnackbar';
 import { hospedesMock, quartosMock, reservasMock } from '../../data/mockData';
 import type { Reserva, StatusReserva } from '../../types/hotel';
 
@@ -41,6 +43,10 @@ export function ReservasPage() {
   const [openDetails, setOpenDetails] = useState(false);
   const [selectedReserva, setSelectedReserva] = useState<Reserva | null>(null);
   const [formData, setFormData] = useState<Omit<Reserva, 'id'>>(emptyReserva);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [reservaToDelete, setReservaToDelete] = useState<number | null>(null);
 
   function getHospedeNome(id: number) {
     return hospedesMock.find(hospede => hospede.id === id)?.nome || 'Não informado';
@@ -95,6 +101,8 @@ export function ReservasPage() {
             : reserva
         )
       );
+
+      showMessage('Reserva atualizada com sucesso.');
     } else {
       const newReserva: Reserva = {
         id: Date.now(),
@@ -102,21 +110,32 @@ export function ReservasPage() {
       };
 
       setReservas(currentReservas => [...currentReservas, newReserva]);
+
+      showMessage('Reserva cadastrada com sucesso.');
     }
 
     handleCloseForm();
   }
 
-  function handleDelete(id: number) {
-    const confirmDelete = window.confirm(
-      'Tem certeza que deseja excluir esta reserva?'
-    );
+  function handleOpenDeleteDialog(id: number) {
+    setReservaToDelete(id);
+    setOpenDeleteDialog(true);
+  }
 
-    if (!confirmDelete) return;
+  function handleCloseDeleteDialog() {
+    setReservaToDelete(null);
+    setOpenDeleteDialog(false);
+  }
+
+  function handleConfirmDelete() {
+    if (!reservaToDelete) return;
 
     setReservas(currentReservas =>
-      currentReservas.filter(reserva => reserva.id !== id)
+      currentReservas.filter(reserva => reserva.id !== reservaToDelete)
     );
+
+    showMessage('Reserva excluída com sucesso.');
+    handleCloseDeleteDialog();
   }
 
   function handleOpenDetails(reserva: Reserva) {
@@ -139,27 +158,19 @@ export function ReservasPage() {
     }));
   }
 
+  function showMessage(message: string) {
+    setSnackbarMessage(message);
+    setOpenSnackbar(true);
+  }
+
   return (
     <Box>
-      <Stack
-        direction="row"
-        sx={{
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          mb: 3,
-        }}
-      >
-        <Box>
-          <Typography variant="h4">Reservas</Typography>
-          <Typography variant="body2" color="text.secondary">
-            Gerencie as reservas realizadas no hotel.
-          </Typography>
-        </Box>
-
-        <Button variant="contained" onClick={handleOpenCreate}>
-          Nova reserva
-        </Button>
-      </Stack>
+      <PageHeader
+        title="Reservas"
+        description="Gerencie as reservas realizadas no hotel."
+        buttonText="Nova reserva"
+        onButtonClick={handleOpenCreate}
+      />
 
       <TextField
         fullWidth
@@ -206,7 +217,7 @@ export function ReservasPage() {
 
                   <IconButton
                     color="error"
-                    onClick={() => handleDelete(reserva.id)}
+                    onClick={() => handleOpenDeleteDialog(reserva.id)}
                   >
                     <DeleteIcon />
                   </IconButton>
@@ -273,8 +284,8 @@ export function ReservasPage() {
               onChange={event => handleChange('dataEntrada', event.target.value)}
               fullWidth
               slotProps={{
-                    inputLabel: { shrink: true }
-                }}
+                inputLabel: { shrink: true }
+              }}
             />
 
             <TextField
@@ -284,8 +295,8 @@ export function ReservasPage() {
               onChange={event => handleChange('dataSaida', event.target.value)}
               fullWidth
               slotProps={{
-                    inputLabel: { shrink: true }
-                }}
+                inputLabel: { shrink: true }
+              }}
             />
 
             <FormControl fullWidth>
@@ -368,6 +379,20 @@ export function ReservasPage() {
           <Button onClick={handleCloseDetails}>Fechar</Button>
         </DialogActions>
       </Dialog>
+
+      <ConfirmDialog
+        open={openDeleteDialog}
+        title="Confirmar exclusão"
+        message="Tem certeza que deseja excluir esta reserva?"
+        onClose={handleCloseDeleteDialog}
+        onConfirm={handleConfirmDelete}
+      />
+
+      <FeedbackSnackbar
+        open={openSnackbar}
+        message={snackbarMessage}
+        onClose={() => setOpenSnackbar(false)}
+      />
     </Box>
   );
 }

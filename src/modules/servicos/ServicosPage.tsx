@@ -19,9 +19,9 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import { PageHeader } from '../../components/PageHeader';
-import { ConfirmDialog } from '../../components/ConfirmDialog';
-import { FeedbackSnackbar } from '../../components/FeedbackSnackbar';
+import { PageHeader } from '../../componentes/PageHeader';
+import { ConfirmDialog } from '../../componentes/ConfirmDialog';
+import { FeedbackSnackbar } from '../../componentes/FeedbackSnackbar';
 import { servicosMock } from '../../data/mockData';
 import type { Servico } from '../../types/hotel';
 
