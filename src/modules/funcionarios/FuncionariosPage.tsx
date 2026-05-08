@@ -21,7 +21,9 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-
+import { PageHeader } from '../../componentes/PageHeader';
+import { ConfirmDialog } from '../../componentes/ConfirmDialog';
+import { FeedbackSnackbar } from '../../componentes/FeedbackSnackbar';
 import { funcionariosMock } from '../../data/mockData';
 import type { Funcionario, TurnoFuncionario } from '../../types/hotel';
 
@@ -54,6 +56,11 @@ export function FuncionariosPage() {
       funcionario.cargo.toLowerCase().includes(search.toLowerCase()) ||
       funcionario.cpf.includes(search)
   );
+
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [funcionarioToDelete, setFuncionarioToDelete] = useState<number | null>(null);
 
   function handleOpenCreate() {
     setSelectedFuncionario(null);
@@ -105,16 +112,27 @@ export function FuncionariosPage() {
     handleCloseForm();
   }
 
-  function handleDelete(id: number) {
-    const confirmDelete = window.confirm(
-      'Tem certeza que deseja excluir este funcionário?'
-    );
+  function handleOpenDeleteDialog(id: number) {
+    setFuncionarioToDelete(id);
+    setOpenDeleteDialog(true);
+  }
 
-    if (!confirmDelete) return;
+  function handleCloseDeleteDialog() {
+    setFuncionarioToDelete(null);
+    setOpenDeleteDialog(false);
+  }
+
+  function handleConfirmDelete() {
+    if (!funcionarioToDelete) return;
 
     setFuncionarios(currentFuncionarios =>
-      currentFuncionarios.filter(funcionario => funcionario.id !== id)
+      currentFuncionarios.filter(
+        funcionario => funcionario.id !== funcionarioToDelete
+      )
     );
+
+    showMessage('Funcionário excluído com sucesso.');
+    handleCloseDeleteDialog();
   }
 
   function handleOpenDetails(funcionario: Funcionario) {
@@ -137,27 +155,19 @@ export function FuncionariosPage() {
     }));
   }
 
+  function showMessage(message: string) {
+    setSnackbarMessage(message);
+    setOpenSnackbar(true);
+  }
+
   return (
     <Box>
-      <Stack
-        direction="row"
-        sx={{
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          mb: 3,
-        }}
-      >
-        <Box>
-          <Typography variant="h4">Funcionários</Typography>
-          <Typography variant="body2" color="text.secondary">
-            Gerencie os funcionários do hotel.
-          </Typography>
-        </Box>
-
-        <Button variant="contained" onClick={handleOpenCreate}>
-          Novo funcionário
-        </Button>
-      </Stack>
+      <PageHeader
+        title="Funcionários"
+        description="Gerencie os funcionários do hotel."
+        buttonText="Novo funcionário"
+        onButtonClick={handleOpenCreate}
+      />
 
       <TextField
         fullWidth
@@ -201,7 +211,7 @@ export function FuncionariosPage() {
 
                   <IconButton
                     color="error"
-                    onClick={() => handleDelete(funcionario.id)}
+                    onClick={() => handleOpenDeleteDialog(funcionario.id)}
                   >
                     <DeleteIcon />
                   </IconButton>
@@ -344,6 +354,20 @@ export function FuncionariosPage() {
           <Button onClick={handleCloseDetails}>Fechar</Button>
         </DialogActions>
       </Dialog>
+
+      <ConfirmDialog
+        open={openDeleteDialog}
+        title="Confirmar exclusão"
+        message="Tem certeza que deseja excluir este funcionário?"
+        onClose={handleCloseDeleteDialog}
+        onConfirm={handleConfirmDelete}
+      />
+
+      <FeedbackSnackbar
+        open={openSnackbar}
+        message={snackbarMessage}
+        onClose={() => setOpenSnackbar(false)}
+      />
     </Box>
   );
 }
