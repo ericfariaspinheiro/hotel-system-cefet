@@ -1,0 +1,373 @@
+import { useState } from 'react';
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  FormControl,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
+  Stack,
+  TextField,
+  Typography,
+} from '@mui/material';
+
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+
+import { hospedesMock, quartosMock, reservasMock } from '../../data/mockData';
+import type { Reserva, StatusReserva } from '../../types/hotel';
+
+const emptyReserva: Omit<Reserva, 'id'> = {
+  hospedeId: 0,
+  quartoId: 0,
+  dataEntrada: '',
+  dataSaida: '',
+  status: 'Pendente',
+  valorTotal: 0,
+};
+
+export function ReservasPage() {
+  const [reservas, setReservas] = useState<Reserva[]>(reservasMock);
+  const [search, setSearch] = useState('');
+  const [openForm, setOpenForm] = useState(false);
+  const [openDetails, setOpenDetails] = useState(false);
+  const [selectedReserva, setSelectedReserva] = useState<Reserva | null>(null);
+  const [formData, setFormData] = useState<Omit<Reserva, 'id'>>(emptyReserva);
+
+  function getHospedeNome(id: number) {
+    return hospedesMock.find(hospede => hospede.id === id)?.nome || 'Não informado';
+  }
+
+  function getQuartoNumero(id: number) {
+    return quartosMock.find(quarto => quarto.id === id)?.numero || 'Não informado';
+  }
+
+  const filteredReservas = reservas.filter(reserva => {
+    const hospedeNome = getHospedeNome(reserva.hospedeId).toLowerCase();
+    const quartoNumero = getQuartoNumero(reserva.quartoId).toLowerCase();
+
+    return (
+      hospedeNome.includes(search.toLowerCase()) ||
+      quartoNumero.includes(search.toLowerCase()) ||
+      reserva.status.toLowerCase().includes(search.toLowerCase())
+    );
+  });
+
+  function handleOpenCreate() {
+    setSelectedReserva(null);
+    setFormData(emptyReserva);
+    setOpenForm(true);
+  }
+
+  function handleOpenEdit(reserva: Reserva) {
+    setSelectedReserva(reserva);
+    setFormData({
+      hospedeId: reserva.hospedeId,
+      quartoId: reserva.quartoId,
+      dataEntrada: reserva.dataEntrada,
+      dataSaida: reserva.dataSaida,
+      status: reserva.status,
+      valorTotal: reserva.valorTotal,
+    });
+    setOpenForm(true);
+  }
+
+  function handleCloseForm() {
+    setOpenForm(false);
+    setSelectedReserva(null);
+    setFormData(emptyReserva);
+  }
+
+  function handleSave() {
+    if (selectedReserva) {
+      setReservas(currentReservas =>
+        currentReservas.map(reserva =>
+          reserva.id === selectedReserva.id
+            ? { ...reserva, ...formData }
+            : reserva
+        )
+      );
+    } else {
+      const newReserva: Reserva = {
+        id: Date.now(),
+        ...formData,
+      };
+
+      setReservas(currentReservas => [...currentReservas, newReserva]);
+    }
+
+    handleCloseForm();
+  }
+
+  function handleDelete(id: number) {
+    const confirmDelete = window.confirm(
+      'Tem certeza que deseja excluir esta reserva?'
+    );
+
+    if (!confirmDelete) return;
+
+    setReservas(currentReservas =>
+      currentReservas.filter(reserva => reserva.id !== id)
+    );
+  }
+
+  function handleOpenDetails(reserva: Reserva) {
+    setSelectedReserva(reserva);
+    setOpenDetails(true);
+  }
+
+  function handleCloseDetails() {
+    setOpenDetails(false);
+    setSelectedReserva(null);
+  }
+
+  function handleChange(
+    field: keyof Omit<Reserva, 'id'>,
+    value: string | number | StatusReserva
+  ) {
+    setFormData(currentData => ({
+      ...currentData,
+      [field]: value,
+    }));
+  }
+
+  return (
+    <Box>
+      <Stack
+        direction="row"
+        sx={{
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          mb: 3,
+        }}
+      >
+        <Box>
+          <Typography variant="h4">Reservas</Typography>
+          <Typography variant="body2" color="text.secondary">
+            Gerencie as reservas realizadas no hotel.
+          </Typography>
+        </Box>
+
+        <Button variant="contained" onClick={handleOpenCreate}>
+          Nova reserva
+        </Button>
+      </Stack>
+
+      <TextField
+        fullWidth
+        label="Buscar por hóspede, quarto ou status"
+        value={search}
+        onChange={event => setSearch(event.target.value)}
+        sx={{ mb: 3 }}
+      />
+
+      <Stack spacing={2}>
+        {filteredReservas.map(reserva => (
+          <Card key={reserva.id}>
+            <CardContent>
+              <Stack
+                direction="row"
+                sx={{
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
+                <Box>
+                  <Typography variant="h6">
+                    {getHospedeNome(reserva.hospedeId)}
+                  </Typography>
+
+                  <Typography variant="body2" color="text.secondary">
+                    Quarto: {getQuartoNumero(reserva.quartoId)} | Status:{' '}
+                    {reserva.status}
+                  </Typography>
+
+                  <Typography variant="body2" color="text.secondary">
+                    Entrada: {reserva.dataEntrada} | Saída: {reserva.dataSaida}
+                  </Typography>
+                </Box>
+
+                <Stack direction="row" spacing={1}>
+                  <IconButton onClick={() => handleOpenDetails(reserva)}>
+                    <VisibilityIcon />
+                  </IconButton>
+
+                  <IconButton onClick={() => handleOpenEdit(reserva)}>
+                    <EditIcon />
+                  </IconButton>
+
+                  <IconButton
+                    color="error"
+                    onClick={() => handleDelete(reserva.id)}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </Stack>
+              </Stack>
+            </CardContent>
+          </Card>
+        ))}
+      </Stack>
+
+      {filteredReservas.length === 0 && (
+        <Typography sx={{ mt: 3 }} color="text.secondary">
+          Nenhuma reserva encontrada.
+        </Typography>
+      )}
+
+      <Dialog open={openForm} onClose={handleCloseForm} fullWidth maxWidth="sm">
+        <DialogTitle>
+          {selectedReserva ? 'Editar reserva' : 'Cadastrar reserva'}
+        </DialogTitle>
+
+        <DialogContent>
+          <Stack spacing={2} sx={{ mt: 1 }}>
+            <FormControl fullWidth>
+              <InputLabel>Hóspede</InputLabel>
+              <Select
+                label="Hóspede"
+                value={formData.hospedeId}
+                onChange={event =>
+                  handleChange('hospedeId', Number(event.target.value))
+                }
+              >
+                <MenuItem value={0}>Selecione um hóspede</MenuItem>
+                {hospedesMock.map(hospede => (
+                  <MenuItem key={hospede.id} value={hospede.id}>
+                    {hospede.nome}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <FormControl fullWidth>
+              <InputLabel>Quarto</InputLabel>
+              <Select
+                label="Quarto"
+                value={formData.quartoId}
+                onChange={event =>
+                  handleChange('quartoId', Number(event.target.value))
+                }
+              >
+                <MenuItem value={0}>Selecione um quarto</MenuItem>
+                {quartosMock.map(quarto => (
+                  <MenuItem key={quarto.id} value={quarto.id}>
+                    Quarto {quarto.numero} - {quarto.tipo}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <TextField
+              label="Data de entrada"
+              type="date"
+              value={formData.dataEntrada}
+              onChange={event => handleChange('dataEntrada', event.target.value)}
+              fullWidth
+              slotProps={{
+                    inputLabel: { shrink: true }
+                }}
+            />
+
+            <TextField
+              label="Data de saída"
+              type="date"
+              value={formData.dataSaida}
+              onChange={event => handleChange('dataSaida', event.target.value)}
+              fullWidth
+              slotProps={{
+                    inputLabel: { shrink: true }
+                }}
+            />
+
+            <FormControl fullWidth>
+              <InputLabel>Status</InputLabel>
+              <Select
+                label="Status"
+                value={formData.status}
+                onChange={event =>
+                  handleChange('status', event.target.value as StatusReserva)
+                }
+              >
+                <MenuItem value="Pendente">Pendente</MenuItem>
+                <MenuItem value="Confirmada">Confirmada</MenuItem>
+                <MenuItem value="Cancelada">Cancelada</MenuItem>
+                <MenuItem value="Finalizada">Finalizada</MenuItem>
+              </Select>
+            </FormControl>
+
+            <TextField
+              label="Valor total"
+              type="number"
+              value={formData.valorTotal}
+              onChange={event =>
+                handleChange('valorTotal', Number(event.target.value))
+              }
+              fullWidth
+            />
+          </Stack>
+        </DialogContent>
+
+        <DialogActions>
+          <Button onClick={handleCloseForm}>Cancelar</Button>
+          <Button variant="contained" onClick={handleSave}>
+            Salvar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={openDetails}
+        onClose={handleCloseDetails}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>Detalhes da reserva</DialogTitle>
+
+        <DialogContent>
+          {selectedReserva && (
+            <Stack spacing={1} sx={{ mt: 1 }}>
+              <Typography>
+                <strong>Hóspede:</strong>{' '}
+                {getHospedeNome(selectedReserva.hospedeId)}
+              </Typography>
+
+              <Typography>
+                <strong>Quarto:</strong>{' '}
+                {getQuartoNumero(selectedReserva.quartoId)}
+              </Typography>
+
+              <Typography>
+                <strong>Data de entrada:</strong> {selectedReserva.dataEntrada}
+              </Typography>
+
+              <Typography>
+                <strong>Data de saída:</strong> {selectedReserva.dataSaida}
+              </Typography>
+
+              <Typography>
+                <strong>Status:</strong> {selectedReserva.status}
+              </Typography>
+
+              <Typography>
+                <strong>Valor total:</strong> R$ {selectedReserva.valorTotal}
+              </Typography>
+            </Stack>
+          )}
+        </DialogContent>
+
+        <DialogActions>
+          <Button onClick={handleCloseDetails}>Fechar</Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
+  );
+}
