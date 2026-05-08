@@ -2,14 +2,11 @@ import { useState } from 'react';
 import {
   Box,
   Button,
-  Card,
-  CardContent,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   FormControl,
-  IconButton,
   InputLabel,
   MenuItem,
   Select,
@@ -18,14 +15,12 @@ import {
   Typography,
 } from '@mui/material';
 
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import { PageHeader } from '../../components/PageHeader';
-import { ConfirmDialog } from '../../components/ConfirmDialog';
-import { FeedbackSnackbar } from '../../components/FeedbackSnackbar';
+import { PageHeader } from '../../componentes/PageHeader';
+import { ConfirmDialog } from '../../componentes/ConfirmDialog';
+import { FeedbackSnackbar } from '../../componentes/FeedbackSnackbar';
 import { hospedesMock, quartosMock, reservasMock } from '../../data/mockData';
 import type { Reserva, StatusReserva } from '../../types/hotel';
+import { CrudCard } from '../../componentes/CrudCard';
 
 const emptyReserva: Omit<Reserva, 'id'> = {
   hospedeId: 0,
@@ -182,49 +177,15 @@ export function ReservasPage() {
 
       <Stack spacing={2}>
         {filteredReservas.map(reserva => (
-          <Card key={reserva.id}>
-            <CardContent>
-              <Stack
-                direction="row"
-                sx={{
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}
-              >
-                <Box>
-                  <Typography variant="h6">
-                    {getHospedeNome(reserva.hospedeId)}
-                  </Typography>
-
-                  <Typography variant="body2" color="text.secondary">
-                    Quarto: {getQuartoNumero(reserva.quartoId)} | Status:{' '}
-                    {reserva.status}
-                  </Typography>
-
-                  <Typography variant="body2" color="text.secondary">
-                    Entrada: {reserva.dataEntrada} | Saída: {reserva.dataSaida}
-                  </Typography>
-                </Box>
-
-                <Stack direction="row" spacing={1}>
-                  <IconButton onClick={() => handleOpenDetails(reserva)}>
-                    <VisibilityIcon />
-                  </IconButton>
-
-                  <IconButton onClick={() => handleOpenEdit(reserva)}>
-                    <EditIcon />
-                  </IconButton>
-
-                  <IconButton
-                    color="error"
-                    onClick={() => handleOpenDeleteDialog(reserva.id)}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </Stack>
-              </Stack>
-            </CardContent>
-          </Card>
+          <CrudCard
+            key={reserva.id}
+            title={getHospedeNome(reserva.hospedeId)}
+            subtitle={`Quarto: ${getQuartoNumero(reserva.quartoId)} | Status: ${reserva.status}`}
+            description={`Entrada: ${reserva.dataEntrada} | Saída: ${reserva.dataSaida}`}
+            onDetails={() => handleOpenDetails(reserva)}
+            onEdit={() => handleOpenEdit(reserva)}
+            onDelete={() => handleOpenDeleteDialog(reserva.id)}
+          />
         ))}
       </Stack>
 

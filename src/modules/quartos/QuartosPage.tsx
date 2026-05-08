@@ -2,14 +2,11 @@ import { useState } from 'react';
 import {
     Box,
     Button,
-    Card,
-    CardContent,
     Dialog,
     DialogActions,
     DialogContent,
     DialogTitle,
     FormControl,
-    IconButton,
     InputLabel,
     MenuItem,
     Select,
@@ -18,14 +15,12 @@ import {
     Typography,
 } from '@mui/material';
 
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
-import VisibilityIcon from '@mui/icons-material/Visibility';
 import { PageHeader } from '../../componentes/PageHeader';
 import { ConfirmDialog } from '../../componentes/ConfirmDialog';
 import { FeedbackSnackbar } from '../../componentes/FeedbackSnackbar';
 import { quartosMock } from '../../data/mockData';
 import type { Quarto, StatusQuarto } from '../../types/hotel';
+import { CrudCard } from '../../componentes/CrudCard';
 
 const emptyQuarto: Omit<Quarto, 'id'> = {
     numero: '',
@@ -170,44 +165,15 @@ export function QuartosPage() {
 
             <Stack spacing={2}>
                 {filteredQuartos.map(quarto => (
-                    <Card key={quarto.id}>
-                        <CardContent>
-                            <Stack
-                                direction="row"
-                                sx={{
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center',
-                                }}
-                            >
-                                <Box>
-                                    <Typography variant="h6">Quarto {quarto.numero}</Typography>
-                                    <Typography variant="body2" color="text.secondary">
-                                        Tipo: {quarto.tipo} | Capacidade: {quarto.capacidade}
-                                    </Typography>
-                                    <Typography variant="body2" color="text.secondary">
-                                        Status: {quarto.status} | Diária: R$ {quarto.precoDiaria}
-                                    </Typography>
-                                </Box>
-
-                                <Stack direction="row" spacing={1}>
-                                    <IconButton onClick={() => handleOpenDetails(quarto)}>
-                                        <VisibilityIcon />
-                                    </IconButton>
-
-                                    <IconButton onClick={() => handleOpenEdit(quarto)}>
-                                        <EditIcon />
-                                    </IconButton>
-
-                                    <IconButton
-                                        color="error"
-                                        onClick={() => handleOpenDeleteDialog(quarto.id)}
-                                    >
-                                        <DeleteIcon />
-                                    </IconButton>
-                                </Stack>
-                            </Stack>
-                        </CardContent>
-                    </Card>
+                    <CrudCard
+                        key={quarto.id}
+                        title={`Quarto ${quarto.numero}`}
+                        subtitle={`Tipo: ${quarto.tipo} | Capacidade: ${quarto.capacidade}`}
+                        description={`Status: ${quarto.status} | Diária: R$ ${quarto.precoDiaria}`}
+                        onDetails={() => handleOpenDetails(quarto)}
+                        onEdit={() => handleOpenEdit(quarto)}
+                        onDelete={() => handleOpenDeleteDialog(quarto.id)}
+                    />
                 ))}
             </Stack>
 
@@ -332,7 +298,7 @@ export function QuartosPage() {
                 </DialogActions>
             </Dialog>
 
-            
+
 
             <ConfirmDialog
                 open={openDeleteDialog}

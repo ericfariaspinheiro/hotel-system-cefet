@@ -2,28 +2,23 @@ import { useState } from 'react';
 import {
   Box,
   Button,
-  Card,
-  CardContent,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   FormControlLabel,
-  IconButton,
   Stack,
   Switch,
   TextField,
   Typography,
 } from '@mui/material';
 
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
-import VisibilityIcon from '@mui/icons-material/Visibility';
 import { PageHeader } from '../../componentes/PageHeader';
 import { ConfirmDialog } from '../../componentes/ConfirmDialog';
 import { FeedbackSnackbar } from '../../componentes/FeedbackSnackbar';
 import { servicosMock } from '../../data/mockData';
 import type { Servico } from '../../types/hotel';
+import { CrudCard } from '../../componentes/CrudCard';
 
 const emptyServico: Omit<Servico, 'id'> = {
   nome: '',
@@ -165,46 +160,15 @@ export function ServicosPage() {
 
       <Stack spacing={2}>
         {filteredServicos.map(servico => (
-          <Card key={servico.id}>
-            <CardContent>
-              <Stack
-                direction="row"
-                sx={{
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}
-              >
-                <Box>
-                  <Typography variant="h6">{servico.nome}</Typography>
-
-                  <Typography variant="body2" color="text.secondary">
-                    Categoria: {servico.categoria} | Preço: R$ {servico.preco}
-                  </Typography>
-
-                  <Typography variant="body2" color="text.secondary">
-                    Status: {servico.disponivel ? 'Disponível' : 'Indisponível'}
-                  </Typography>
-                </Box>
-
-                <Stack direction="row" spacing={1}>
-                  <IconButton onClick={() => handleOpenDetails(servico)}>
-                    <VisibilityIcon />
-                  </IconButton>
-
-                  <IconButton onClick={() => handleOpenEdit(servico)}>
-                    <EditIcon />
-                  </IconButton>
-
-                  <IconButton
-                    color="error"
-                    onClick={() => handleOpenDeleteDialog(servico.id)}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </Stack>
-              </Stack>
-            </CardContent>
-          </Card>
+          <CrudCard
+            key={servico.id}
+            title={servico.nome}
+            subtitle={`Categoria: ${servico.categoria} | Preço: R$ ${servico.preco}`}
+            description={`Status: ${servico.disponivel ? 'Disponível' : 'Indisponível'}`}
+            onDetails={() => handleOpenDetails(servico)}
+            onEdit={() => handleOpenEdit(servico)}
+            onDelete={() => handleOpenDeleteDialog(servico.id)}
+          />
         ))}
       </Stack>
 

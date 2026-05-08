@@ -2,14 +2,11 @@ import { useState } from 'react';
 import {
   Box,
   Button,
-  Card,
-  CardContent,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   FormControl,
-  IconButton,
   InputLabel,
   MenuItem,
   Select,
@@ -18,14 +15,12 @@ import {
   Typography,
 } from '@mui/material';
 
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
-import VisibilityIcon from '@mui/icons-material/Visibility';
 import { PageHeader } from '../../componentes/PageHeader';
 import { ConfirmDialog } from '../../componentes/ConfirmDialog';
 import { FeedbackSnackbar } from '../../componentes/FeedbackSnackbar';
 import { funcionariosMock } from '../../data/mockData';
 import type { Funcionario, TurnoFuncionario } from '../../types/hotel';
+import { CrudCard } from '../../componentes/CrudCard';
 
 const emptyFuncionario: Omit<Funcionario, 'id'> = {
   nome: '',
@@ -179,46 +174,15 @@ export function FuncionariosPage() {
 
       <Stack spacing={2}>
         {filteredFuncionarios.map(funcionario => (
-          <Card key={funcionario.id}>
-            <CardContent>
-              <Stack
-                direction="row"
-                sx={{
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}
-              >
-                <Box>
-                  <Typography variant="h6">{funcionario.nome}</Typography>
-
-                  <Typography variant="body2" color="text.secondary">
-                    Cargo: {funcionario.cargo} | Turno: {funcionario.turno}
-                  </Typography>
-
-                  <Typography variant="body2" color="text.secondary">
-                    {funcionario.email} | {funcionario.telefone}
-                  </Typography>
-                </Box>
-
-                <Stack direction="row" spacing={1}>
-                  <IconButton onClick={() => handleOpenDetails(funcionario)}>
-                    <VisibilityIcon />
-                  </IconButton>
-
-                  <IconButton onClick={() => handleOpenEdit(funcionario)}>
-                    <EditIcon />
-                  </IconButton>
-
-                  <IconButton
-                    color="error"
-                    onClick={() => handleOpenDeleteDialog(funcionario.id)}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </Stack>
-              </Stack>
-            </CardContent>
-          </Card>
+          <CrudCard
+            key={funcionario.id}
+            title={funcionario.nome}
+            subtitle={`Cargo: ${funcionario.cargo} | Turno: ${funcionario.turno}`}
+            description={`${funcionario.email} | ${funcionario.telefone}`}
+            onDetails={() => handleOpenDetails(funcionario)}
+            onEdit={() => handleOpenEdit(funcionario)}
+            onDelete={() => handleOpenDeleteDialog(funcionario.id)}
+          />
         ))}
       </Stack>
 

@@ -1,37 +1,30 @@
 import { useState } from 'react';
 import {
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  IconButton,
-  Stack,
-  TextField,
-  Typography,
-  Alert,
-  Snackbar,
+    Box,
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    Stack,
+    TextField,
+    Typography,
 } from '@mui/material';
 
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
-import VisibilityIcon from '@mui/icons-material/Visibility';
 import { PageHeader } from '../../componentes/PageHeader';
 import { ConfirmDialog } from '../../componentes/ConfirmDialog';
 import { FeedbackSnackbar } from '../../componentes/FeedbackSnackbar';
 import { hospedesMock } from '../../data/mockData';
 import type { Hospede } from '../../types/hotel';
+import { CrudCard } from '../../componentes/CrudCard';
 
 const emptyHospede: Omit<Hospede, 'id'> = {
-  nome: '',
-  cpf: '',
-  email: '',
-  telefone: '',
-  dataNascimento: '',
-  endereco: '',
+    nome: '',
+    cpf: '',
+    email: '',
+    telefone: '',
+    dataNascimento: '',
+    endereco: '',
 };
 
 export function HospedesPage() {
@@ -48,8 +41,8 @@ export function HospedesPage() {
 
     const filteredHospedes = hospedes.filter(
         hospede =>
-        hospede.nome.toLowerCase().includes(search.toLowerCase()) ||
-        hospede.cpf.includes(search)
+            hospede.nome.toLowerCase().includes(search.toLowerCase()) ||
+            hospede.cpf.includes(search)
     );
 
     function handleOpenCreate() {
@@ -61,12 +54,12 @@ export function HospedesPage() {
     function handleOpenEdit(hospede: Hospede) {
         setSelectedHospede(hospede);
         setFormData({
-        nome: hospede.nome,
-        cpf: hospede.cpf,
-        email: hospede.email,
-        telefone: hospede.telefone,
-        dataNascimento: hospede.dataNascimento,
-        endereco: hospede.endereco,
+            nome: hospede.nome,
+            cpf: hospede.cpf,
+            email: hospede.email,
+            telefone: hospede.telefone,
+            dataNascimento: hospede.dataNascimento,
+            endereco: hospede.endereco,
         });
         setOpenForm(true);
     }
@@ -80,18 +73,18 @@ export function HospedesPage() {
     function handleSave() {
         if (selectedHospede) {
             setHospedes(currentHospedes =>
-            currentHospedes.map(hospede =>
-                hospede.id === selectedHospede.id
-                ? { ...hospede, ...formData }
-                : hospede
-            )
+                currentHospedes.map(hospede =>
+                    hospede.id === selectedHospede.id
+                        ? { ...hospede, ...formData }
+                        : hospede
+                )
             );
 
             showMessage('Hóspede atualizado com sucesso.');
         } else {
             const newHospede: Hospede = {
-            id: Date.now(),
-            ...formData,
+                id: Date.now(),
+                ...formData,
             };
 
             setHospedes(currentHospedes => [...currentHospedes, newHospede]);
@@ -135,8 +128,8 @@ export function HospedesPage() {
 
     function handleChange(field: keyof Omit<Hospede, 'id'>, value: string) {
         setFormData(currentData => ({
-        ...currentData,
-        [field]: value,
+            ...currentData,
+            [field]: value,
         }));
     }
 
@@ -164,120 +157,91 @@ export function HospedesPage() {
 
             <Stack spacing={2}>
                 {filteredHospedes.map(hospede => (
-                <Card key={hospede.id}>
-                    <CardContent>
-                    <Stack
-                        direction="row"
-                        sx={{
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        }}
-                    >
-                        <Box>
-                        <Typography variant="h6">{hospede.nome}</Typography>
-                        <Typography variant="body2" color="text.secondary">
-                            CPF: {hospede.cpf}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                            {hospede.email} | {hospede.telefone}
-                        </Typography>
-                        </Box>
-
-                        <Stack direction="row" spacing={1}>
-                        <IconButton onClick={() => handleOpenDetails(hospede)}>
-                            <VisibilityIcon />
-                        </IconButton>
-
-                        <IconButton onClick={() => handleOpenEdit(hospede)}>
-                            <EditIcon />
-                        </IconButton>
-
-                        <IconButton
-                            color="error"
-                            onClick={() => handleOpenDeleteDialog(hospede.id)}
-                        >
-                            <DeleteIcon />
-                        </IconButton>
-                        </Stack>
-                    </Stack>
-                    </CardContent>
-                </Card>
+                    <CrudCard
+                        key={hospede.id}
+                        title={hospede.nome}
+                        subtitle={`CPF: ${hospede.cpf}`}
+                        description={`${hospede.email} | ${hospede.telefone}`}
+                        onDetails={() => handleOpenDetails(hospede)}
+                        onEdit={() => handleOpenEdit(hospede)}
+                        onDelete={() => handleOpenDeleteDialog(hospede.id)}
+                    />
                 ))}
             </Stack>
 
             {filteredHospedes.length === 0 && (
-                <Typography 
+                <Typography
                     sx={{
                         mt: 3,
                         color: "text.secondary"
                     }}
                 >
-                Nenhum hóspede encontrado.
+                    Nenhum hóspede encontrado.
                 </Typography>
             )}
 
             <Dialog open={openForm} onClose={handleCloseForm} fullWidth maxWidth="sm">
                 <DialogTitle>
-                {selectedHospede ? 'Editar hóspede' : 'Cadastrar hóspede'}
+                    {selectedHospede ? 'Editar hóspede' : 'Cadastrar hóspede'}
                 </DialogTitle>
 
                 <DialogContent>
-                <Stack spacing={2} sx={{ mt: 1 }}>
-                    <TextField
-                    label="Nome"
-                    value={formData.nome}
-                    onChange={event => handleChange('nome', event.target.value)}
-                    fullWidth
-                    />
+                    <Stack spacing={2} sx={{ mt: 1 }}>
+                        <TextField
+                            label="Nome"
+                            value={formData.nome}
+                            onChange={event => handleChange('nome', event.target.value)}
+                            fullWidth
+                        />
 
-                    <TextField
-                    label="CPF"
-                    value={formData.cpf}
-                    onChange={event => handleChange('cpf', event.target.value)}
-                    fullWidth
-                    />
+                        <TextField
+                            label="CPF"
+                            value={formData.cpf}
+                            onChange={event => handleChange('cpf', event.target.value)}
+                            fullWidth
+                        />
 
-                    <TextField
-                    label="E-mail"
-                    value={formData.email}
-                    onChange={event => handleChange('email', event.target.value)}
-                    fullWidth
-                    />
+                        <TextField
+                            label="E-mail"
+                            value={formData.email}
+                            onChange={event => handleChange('email', event.target.value)}
+                            fullWidth
+                        />
 
-                    <TextField
-                    label="Telefone"
-                    value={formData.telefone}
-                    onChange={event => handleChange('telefone', event.target.value)}
-                    fullWidth
-                    />
+                        <TextField
+                            label="Telefone"
+                            value={formData.telefone}
+                            onChange={event => handleChange('telefone', event.target.value)}
+                            fullWidth
+                        />
 
-                    <TextField
-                    label="Data de nascimento"
-                    type="date"
-                    value={formData.dataNascimento}
-                    onChange={event =>
-                        handleChange('dataNascimento', event.target.value)
-                    }
-                    fullWidth
-                    slotProps={{
-                            inputLabel: { shrink: true }
-                        }}
-                    />
+                        <TextField
+                            label="Data de nascimento"
+                            type="date"
+                            value={formData.dataNascimento}
+                            onChange={event =>
+                                handleChange('dataNascimento', event.target.value)
+                            }
+                            fullWidth
+                            slotProps={{
+                                inputLabel: { shrink: true }
+                            }}
+                        />
 
-                    <TextField
-                    label="Endereço"
-                    value={formData.endereco}
-                    onChange={event => handleChange('endereco', event.target.value)}
-                    fullWidth
-                    />
-                </Stack>
+                        <TextField
+                            label="Endereço"
+                            value={formData.endereco}
+                            onChange={event => handleChange('endereco', event.target.value)}
+                            fullWidth
+                        />
+                    </Stack>
                 </DialogContent>
 
                 <DialogActions>
-                <Button onClick={handleCloseForm}>Cancelar</Button>
-                <Button variant="contained" onClick={handleSave}>
-                    Salvar
-                </Button>
+                    <Button onClick={handleCloseForm}>Cancelar</Button>
+                    <Button variant="contained" onClick={handleSave}>
+                        Salvar
+                    </Button>
                 </DialogActions>
             </Dialog>
 
@@ -290,38 +254,38 @@ export function HospedesPage() {
                 <DialogTitle>Detalhes do hóspede</DialogTitle>
 
                 <DialogContent>
-                {selectedHospede && (
-                    <Stack spacing={1} sx={{ mt: 1 }}>
-                    <Typography>
-                        <strong>Nome:</strong> {selectedHospede.nome}
-                    </Typography>
+                    {selectedHospede && (
+                        <Stack spacing={1} sx={{ mt: 1 }}>
+                            <Typography>
+                                <strong>Nome:</strong> {selectedHospede.nome}
+                            </Typography>
 
-                    <Typography>
-                        <strong>CPF:</strong> {selectedHospede.cpf}
-                    </Typography>
+                            <Typography>
+                                <strong>CPF:</strong> {selectedHospede.cpf}
+                            </Typography>
 
-                    <Typography>
-                        <strong>E-mail:</strong> {selectedHospede.email}
-                    </Typography>
+                            <Typography>
+                                <strong>E-mail:</strong> {selectedHospede.email}
+                            </Typography>
 
-                    <Typography>
-                        <strong>Telefone:</strong> {selectedHospede.telefone}
-                    </Typography>
+                            <Typography>
+                                <strong>Telefone:</strong> {selectedHospede.telefone}
+                            </Typography>
 
-                    <Typography>
-                        <strong>Data de nascimento:</strong>{' '}
-                        {selectedHospede.dataNascimento}
-                    </Typography>
+                            <Typography>
+                                <strong>Data de nascimento:</strong>{' '}
+                                {selectedHospede.dataNascimento}
+                            </Typography>
 
-                    <Typography>
-                        <strong>Endereço:</strong> {selectedHospede.endereco}
-                    </Typography>
-                    </Stack>
-                )}
+                            <Typography>
+                                <strong>Endereço:</strong> {selectedHospede.endereco}
+                            </Typography>
+                        </Stack>
+                    )}
                 </DialogContent>
 
                 <DialogActions>
-                <Button onClick={handleCloseDetails}>Fechar</Button>
+                    <Button onClick={handleCloseDetails}>Fechar</Button>
                 </DialogActions>
             </Dialog>
 
