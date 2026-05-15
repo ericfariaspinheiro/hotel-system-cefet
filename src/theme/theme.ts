@@ -2,92 +2,111 @@ import { createTheme } from '@mui/material/styles';
 
 export const theme = createTheme({
   palette: {
+    mode: 'dark',
     primary: {
-      main: '#0F172A',
-      light: '#1E293B',
-      dark: '#020617',
+      main: '#2F6FED',
+      light: '#6EA8FF',
+      dark: '#1D4ED8',
     },
     secondary: {
-      main: '#C8A24A',
+      main: '#60A5FA',
     },
     background: {
-      default: '#F8FAFC',
-      paper: '#FFFFFF',
+      default: '#080D17',
+      paper: '#0E1624',
     },
     text: {
-      primary: '#0F172A',
-      secondary: '#64748B',
+      primary: '#F8FAFC',
+      secondary: '#AAB4C3',
     },
     success: {
-      main: '#16A34A',
+      main: '#22C55E',
     },
     error: {
-      main: '#DC2626',
+      main: '#EF4444',
+    },
+    warning: {
+      main: '#FACC15',
     },
   },
   typography: {
     fontFamily: 'Roboto, Arial, sans-serif',
+    h3: {
+      fontWeight: 800,
+      letterSpacing: '-0.03em',
+    },
     h4: {
-      fontWeight: 700,
-      letterSpacing: '-0.02em',
+      fontWeight: 800,
+      letterSpacing: '-0.03em',
     },
     h5: {
       fontWeight: 700,
     },
     h6: {
-      fontWeight: 600,
+      fontWeight: 700,
     },
     button: {
-      fontWeight: 600,
       textTransform: 'none',
+      fontWeight: 700,
     },
   },
   shape: {
-    borderRadius: 14,
+    borderRadius: 10,
   },
   components: {
-    MuiButton: {
+    MuiCssBaseline: {
       styleOverrides: {
-        root: {
-          borderRadius: 10,
-          padding: '10px 18px',
-          boxShadow: 'none',
+        body: {
+          backgroundColor: '#080D17',
         },
       },
     },
     MuiCard: {
       styleOverrides: {
         root: {
-          borderRadius: 18,
-          boxShadow: '0 10px 30px rgba(15, 23, 42, 0.06)',
-          border: '1px solid rgba(148, 163, 184, 0.18)',
+          backgroundColor: '#0E1624',
+          border: '1px solid #1B2A41',
+          boxShadow: 'none',
         },
       },
     },
-    MuiPaper: {
+    MuiButton: {
       styleOverrides: {
         root: {
-          backgroundImage: 'none',
+          borderRadius: 8,
+          boxShadow: 'none',
         },
-      },
-    },
-    MuiTextField: {
-      defaultProps: {
-        variant: 'outlined',
+        contained: {
+          backgroundColor: '#2563EB',
+          '&:hover': {
+            backgroundColor: '#1D4ED8',
+          },
+        },
       },
     },
     MuiOutlinedInput: {
       styleOverrides: {
         root: {
-          borderRadius: 12,
-          backgroundColor: '#FFFFFF',
+          backgroundColor: '#0B1220',
+          borderRadius: 8,
+        },
+        notchedOutline: {
+          borderColor: '#23324A',
+        },
+      },
+    },
+    MuiInputLabel: {
+      styleOverrides: {
+        root: {
+          color: '#AAB4C3',
         },
       },
     },
     MuiDialog: {
       styleOverrides: {
         paper: {
-          borderRadius: 18,
+          backgroundColor: '#0E1624',
+          border: '1px solid #1B2A41',
         },
       },
     },

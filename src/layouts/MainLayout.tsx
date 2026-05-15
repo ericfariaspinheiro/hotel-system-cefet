@@ -1,20 +1,10 @@
-import { useState } from 'react';
-
 import {
-  AppBar,
-  Avatar,
   Box,
-  Drawer,
-  IconButton,
-  List,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Toolbar,
+  Button,
+  Stack,
   Typography,
 } from '@mui/material';
 
-import MenuIcon from '@mui/icons-material/Menu';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import HotelIcon from '@mui/icons-material/Hotel';
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
@@ -24,247 +14,161 @@ import RoomServiceIcon from '@mui/icons-material/RoomService';
 
 import { Link, Outlet, useLocation } from 'react-router-dom';
 
-const drawerWidth = 260;
-
 const menuItems = [
-  { text: 'Dashboard', path: '/', icon: <DashboardIcon /> },
-  { text: 'Hóspedes', path: '/hospedes', icon: <HotelIcon /> },
-  { text: 'Quartos', path: '/quartos', icon: <MeetingRoomIcon /> },
-  { text: 'Reservas', path: '/reservas', icon: <CalendarMonthIcon /> },
-  { text: 'Funcionários', path: '/funcionarios', icon: <BadgeIcon /> },
-  { text: 'Serviços', path: '/servicos', icon: <RoomServiceIcon /> },
+  { text: 'Overview', path: '/', icon: <DashboardIcon fontSize="small" /> },
+  { text: 'Reservations', path: '/reservas', icon: <CalendarMonthIcon fontSize="small" /> },
+  { text: 'Guests', path: '/hospedes', icon: <HotelIcon fontSize="small" /> },
+  { text: 'Rooms', path: '/quartos', icon: <MeetingRoomIcon fontSize="small" /> },
+  { text: 'Staff', path: '/funcionarios', icon: <BadgeIcon fontSize="small" /> },
+  { text: 'Services', path: '/servicos', icon: <RoomServiceIcon fontSize="small" /> },
 ];
 
 export function MainLayout() {
-  const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
 
-  function handleToggleDrawer() {
-    setMobileOpen(currentValue => !currentValue);
-  }
-
-  const drawerContent = (
+  return (
     <Box
       sx={{
-        height: '100%',
-        backgroundColor: 'primary.main',
-        color: 'white',
-        px: 2,
+        minHeight: '100vh',
+        backgroundColor: '#080D17',
+        color: 'text.primary',
       }}
     >
-      <Toolbar
+      <Box
         sx={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 1.5,
-          px: '0 !important',
+          maxWidth: 1440,
+          mx: 'auto',
+          minHeight: '100vh',
+          backgroundColor: '#0B111D',
+          borderLeft: '1px solid #121C2D',
+          borderRight: '1px solid #121C2D',
         }}
       >
         <Box
           sx={{
-            width: 38,
-            height: 38,
-            borderRadius: 2,
-            backgroundColor: 'secondary.main',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'primary.main',
-            fontWeight: 800,
+            minHeight: 250,
+            px: {
+              xs: 3,
+              md: 8,
+            },
+            py: 5,
+            background:
+              'linear-gradient(135deg, #0B1734 0%, #10296E 55%, #243C96 100%)',
+            borderBottom: '1px solid #1D2B4F',
+            position: 'relative',
+            overflow: 'hidden',
           }}
         >
-          H
-        </Box>
-
-        <Box>
-          <Typography variant="h6" sx={{ lineHeight: 1 }}>
-            Hotel Manager
-          </Typography>
-          <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.65)' }}>
-            Sistema administrativo
-          </Typography>
-        </Box>
-      </Toolbar>
-
-      <List sx={{ mt: 2 }}>
-        {menuItems.map(item => {
-          const isActive = location.pathname === item.path;
-
-          return (
-            <ListItemButton
-              key={item.text}
-              component={Link}
-              to={item.path}
-              onClick={() => setMobileOpen(false)}
-              sx={{
-                mb: 1,
-                borderRadius: 3,
-                color: isActive ? 'primary.main' : 'rgba(255,255,255,0.75)',
-                backgroundColor: isActive ? 'secondary.main' : 'transparent',
-                '&:hover': {
-                  backgroundColor: isActive
-                    ? 'secondary.main'
-                    : 'rgba(255,255,255,0.08)',
-                },
-              }}
-            >
-              <ListItemIcon
-                sx={{
-                  color: isActive ? 'primary.main' : 'rgba(255,255,255,0.75)',
-                  minWidth: 40,
-                }}
-              >
-                {item.icon}
-              </ListItemIcon>
-
-              <ListItemText
-                primary={item.text}
-                slotProps={{
-                  primary: {
-                    sx: { fontWeight: isActive ? 700 : 500 }
-                  }
-                }}
-              />
-
-            </ListItemButton>
-          );
-        })}
-      </List>
-    </Box>
-  );
-
-  return (
-    <Box sx={{ display: 'flex', minHeight: '100vh' }}>
-      <AppBar
-        position="fixed"
-        elevation={0}
-        sx={{
-          width: {
-            sm: `calc(100% - ${drawerWidth}px)`,
-          },
-          ml: {
-            sm: `${drawerWidth}px`,
-          },
-          backgroundColor: 'background.paper',
-          color: 'text.primary',
-          borderBottom: '1px solid rgba(148, 163, 184, 0.2)',
-        }}
-      >
-        <Toolbar
-          sx={{
-            justifyContent: 'space-between',
-          }}
-        >
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <IconButton
-              color="inherit"
-              edge="start"
-              onClick={handleToggleDrawer}
-              sx={{
-                mr: 2,
-                display: {
-                  sm: 'none',
-                },
-              }}
-            >
-              <MenuIcon />
-            </IconButton>
-
-            <Box>
-              <Typography variant="body2" color="text.secondary">
-                Painel administrativo
-              </Typography>
-              <Typography variant="h6">Gerenciamento do Hotel</Typography>
-            </Box>
-          </Box>
-
-          <Avatar
+          <Box
             sx={{
-              bgcolor: 'primary.main',
-              width: 38,
-              height: 38,
-              fontSize: 14,
-              fontWeight: 700,
+              position: 'absolute',
+              inset: 0,
+              background:
+                'radial-gradient(circle at 70% 20%, rgba(96,165,250,0.22), transparent 34%)',
+            }}
+          />
+
+          <Box sx={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
+            <Typography
+              variant="h3"
+              sx={{
+                mb: 2,
+                fontSize: {
+                  xs: 32,
+                  md: 48,
+                },
+              }}
+            >
+              🏨 Hotel Manager
+            </Typography>
+
+            <Typography
+              variant="h6"
+              sx={{
+                color: 'rgba(255,255,255,0.84)',
+                fontWeight: 500,
+                mb: 1,
+              }}
+            >
+              Sistema Administrativo de Hotel
+            </Typography>
+
+            <Typography sx={{ color: 'rgba(255,255,255,0.74)' }}>
+              Hóspedes — Reservas — Quartos — Funcionários — Serviços
+            </Typography>
+
+            <Typography
+              variant="body2"
+              sx={{
+                mt: 3,
+                color: 'rgba(255,255,255,0.56)',
+              }}
+            >
+              Front Office Management Dashboard
+            </Typography>
+          </Box>
+        </Box>
+
+        <Box
+          sx={{
+            px: {
+              xs: 2,
+              md: 6,
+            },
+            backgroundColor: '#090F1A',
+            borderBottom: '1px solid #1B2A41',
+          }}
+        >
+          <Stack
+            direction="row"
+            spacing={1}
+            useFlexGap
+            flexWrap="wrap"
+            sx={{
+              justifyContent: 'center',
             }}
           >
-            AD
-          </Avatar>
-        </Toolbar>
-      </AppBar>
+            {menuItems.map(item => {
+              const isActive = location.pathname === item.path;
 
-      <Box
-        component="nav"
-        sx={{
-          width: {
-            sm: drawerWidth,
-          },
-          flexShrink: {
-            sm: 0,
-          },
-        }}
-      >
-        <Drawer
-          variant="temporary"
-          open={mobileOpen}
-          onClose={handleToggleDrawer}
-          ModalProps={{
-            keepMounted: true,
-          }}
-          sx={{
-            display: {
-              xs: 'block',
-              sm: 'none',
-            },
-            '& .MuiDrawer-paper': {
-              boxSizing: 'border-box',
-              width: drawerWidth,
-              border: 'none',
-            },
-          }}
-        >
-          {drawerContent}
-        </Drawer>
-
-        <Drawer
-          variant="permanent"
-          sx={{
-            display: {
-              xs: 'none',
-              sm: 'block',
-            },
-            '& .MuiDrawer-paper': {
-              boxSizing: 'border-box',
-              width: drawerWidth,
-              border: 'none',
-            },
-          }}
-          open
-        >
-          {drawerContent}
-        </Drawer>
-      </Box>
-
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          width: {
-            sm: `calc(100% - ${drawerWidth}px)`,
-          },
-          minHeight: '100vh',
-          backgroundColor: 'background.default',
-          p: {
-            xs: 2,
-            sm: 4,
-          },
-        }}
-      >
-        <Toolbar />
+              return (
+                <Button
+                  key={item.path}
+                  component={Link}
+                  to={item.path}
+                  startIcon={item.icon}
+                  sx={{
+                    minHeight: 62,
+                    px: 3,
+                    borderRadius: 0,
+                    color: isActive ? '#60A5FA' : '#AAB4C3',
+                    borderBottom: isActive
+                      ? '3px solid #3B82F6'
+                      : '3px solid transparent',
+                    backgroundColor: isActive ? '#111D2F' : 'transparent',
+                    '&:hover': {
+                      backgroundColor: '#111D2F',
+                      color: '#60A5FA',
+                    },
+                  }}
+                >
+                  {item.text}
+                </Button>
+              );
+            })}
+          </Stack>
+        </Box>
 
         <Box
+          component="main"
           sx={{
-            maxWidth: 1200,
-            mx: 'auto',
+            px: {
+              xs: 2,
+              md: 6,
+            },
+            py: 5,
+            backgroundColor: '#0A111C',
+            minHeight: 'calc(100vh - 330px)',
           }}
         >
           <Outlet />

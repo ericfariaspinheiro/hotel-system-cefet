@@ -1,73 +1,105 @@
-# React + TypeScript + Vite
+# Hotel Manager
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Sistema web de gerenciamento hoteleiro desenvolvido com **React**, **TypeScript**, **Material UI**, **Node.js** e **Express**.
 
-Currently, two official plugins are available:
+O projeto simula um painel administrativo para hotéis, permitindo o gerenciamento de hóspedes, quartos, reservas, funcionários e serviços. A aplicação possui front-end integrado com uma API própria em Node.js, utilizando dados em memória no backend.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## Visão geral
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+O **Hotel Manager** foi desenvolvido para a disciplina de Programação de Framework Front-end com TypeScript.
 
-## Expanding the ESLint configuration
+O sistema possui uma interface moderna em estilo **dark dashboard**, inspirada em painéis administrativos de front office hoteleiro, com navegação superior, cards de métricas, feedback visual e telas completas de CRUD.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+---
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Tecnologias utilizadas
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Front-end
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- React
+- TypeScript
+- Vite
+- Material UI
+- React Router DOM
+- Axios
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Back-end
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- Node.js
+- Express
+- TypeScript
+- CORS
+- ts-node-dev
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+---
+
+## Funcionalidades principais
+
+O sistema possui 5 CRUDs completos:
+
+### Hóspedes
+
+- Cadastrar hóspede
+- Listar hóspedes
+- Editar hóspede
+- Excluir hóspede
+- Buscar por nome ou CPF
+- Visualizar detalhes do hóspede
+
+### Quartos
+
+- Cadastrar quarto
+- Listar quartos
+- Editar quarto
+- Excluir quarto
+- Buscar por número, tipo ou status
+- Visualizar detalhes do quarto
+
+### Reservas
+
+- Cadastrar reserva
+- Listar reservas
+- Editar reserva
+- Excluir reserva
+- Buscar por hóspede, quarto ou status
+- Visualizar detalhes da reserva
+- Relacionamento com hóspede e quarto
+
+### Funcionários
+
+- Cadastrar funcionário
+- Listar funcionários
+- Editar funcionário
+- Excluir funcionário
+- Buscar por nome, CPF ou cargo
+- Visualizar detalhes do funcionário
+
+### Serviços
+
+- Cadastrar serviço
+- Listar serviços
+- Editar serviço
+- Excluir serviço
+- Buscar por nome ou categoria
+- Visualizar detalhes do serviço
+- Controle de disponibilidade
+
+---
+
+## Interface
+
+A interface foi criada com Material UI e possui:
+
+- Layout escuro em estilo dashboard
+- Header superior com identidade visual do sistema
+- Menu horizontal de navegação
+- Cards de métricas
+- Componentes reutilizáveis
+- Feedback visual com Snackbar
+- Dialogs de confirmação
+- Busca/filtro nas listagens
+- Responsividade
+
+---

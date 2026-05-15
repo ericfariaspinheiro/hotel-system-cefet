@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { ReactNode } from 'react';
 
 import {
   Box,
@@ -38,25 +38,18 @@ export function CrudList({
 }: CrudListProps) {
   if (items.length === 0) {
     return (
-      <Typography sx={{ mt: 3 }} color="text.secondary">
-        {emptyMessage}
-      </Typography>
+      <Card>
+        <CardContent>
+          <Typography color="text.secondary">{emptyMessage}</Typography>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
     <Stack spacing={2}>
       {items.map(item => (
-        <Card
-          key={item.id}
-          sx={{
-            transition: '0.2s ease',
-            '&:hover': {
-              transform: 'translateY(-2px)',
-              boxShadow: '0 14px 34px rgba(15, 23, 42, 0.09)',
-            },
-          }}
-        >
+        <Card key={item.id}>
           <CardContent>
             <Stack
               direction={{
@@ -75,20 +68,12 @@ export function CrudList({
               <Box>
                 <Typography variant="h6">{item.title}</Typography>
 
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ mt: 0.5 }}
-                >
+                <Typography color="text.secondary" sx={{ mt: 0.5 }}>
                   {item.subtitle}
                 </Typography>
 
                 {item.description && (
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ mt: 0.5 }}
-                  >
+                  <Typography color="text.secondary" sx={{ mt: 0.5 }}>
                     {item.description}
                   </Typography>
                 )}
@@ -96,25 +81,34 @@ export function CrudList({
                 {item.extra}
               </Box>
 
-              <Stack
-                direction="row"
-                spacing={1}
-                sx={{
-                  alignSelf: {
-                    xs: 'flex-end',
-                    sm: 'center',
-                  },
-                }}
-              >
-                <IconButton onClick={() => onDetails(item.id)}>
+              <Stack direction="row" spacing={1}>
+                <IconButton
+                  onClick={() => onDetails(item.id)}
+                  sx={{
+                    color: '#60A5FA',
+                    backgroundColor: '#13243A',
+                  }}
+                >
                   <VisibilityIcon />
                 </IconButton>
 
-                <IconButton onClick={() => onEdit(item.id)}>
+                <IconButton
+                  onClick={() => onEdit(item.id)}
+                  sx={{
+                    color: '#FACC15',
+                    backgroundColor: '#332B13',
+                  }}
+                >
                   <EditIcon />
                 </IconButton>
 
-                <IconButton color="error" onClick={() => onDelete(item.id)}>
+                <IconButton
+                  onClick={() => onDelete(item.id)}
+                  sx={{
+                    color: '#F87171',
+                    backgroundColor: '#351A1A',
+                  }}
+                >
                   <DeleteIcon />
                 </IconButton>
               </Stack>

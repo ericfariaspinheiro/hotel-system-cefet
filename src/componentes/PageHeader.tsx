@@ -1,4 +1,5 @@
 import { Box, Button, Stack, Typography } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
 
 interface PageHeaderProps {
   title: string;
@@ -15,21 +16,33 @@ export function PageHeader({
 }: PageHeaderProps) {
   return (
     <Stack
-      direction="row"
+      direction={{
+        xs: 'column',
+        sm: 'row',
+      }}
       sx={{
         justifyContent: 'space-between',
-        alignItems: 'center',
-        mb: 3,
+        alignItems: {
+          xs: 'flex-start',
+          sm: 'center',
+        },
+        gap: 2,
+        mb: 4,
       }}
     >
       <Box>
         <Typography variant="h4">{title}</Typography>
-        <Typography variant="body2" color="text.secondary">
+
+        <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
           {description}
         </Typography>
       </Box>
 
-      <Button variant="contained" onClick={onButtonClick}>
+      <Button
+        variant="contained"
+        startIcon={<AddIcon />}
+        onClick={onButtonClick}
+      >
         {buttonText}
       </Button>
     </Stack>
